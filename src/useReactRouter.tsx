@@ -4,6 +4,7 @@ import Login from './Pages/Login';
 import { useRoutes } from 'react-router';
 import ErrorPage from './Pages/ErrorPage';
 import RegisterLayout from './Layout/RegisterLayout';
+import MainLayout from './Layout/MainLayout';
 
 export default function useReactRouter() {
   const routeElements = useRoutes([
@@ -13,7 +14,11 @@ export default function useReactRouter() {
     },
     {
       path: '/',
-      element: <ProductList />
+      element: (
+        <MainLayout>
+          <ProductList />
+        </MainLayout>
+      )
     },
     {
       path: '/login',

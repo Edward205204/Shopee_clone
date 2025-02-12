@@ -1,10 +1,53 @@
 import { Link } from 'react-router';
+import { loginSchema, typeOfLoginSchema } from '../../utils/zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import Input from '../../components/Input';
+import { useMutation } from '@tanstack/react-query';
+import { LoginRequest } from '../../APIs/userRegister.api';
+import { isUnprocessableEntityError } from '../../utils/utils';
+import ResponseAPI from '../../types/ultils';
 
+export type InputForm = typeOfLoginSchema;
 export default function Login() {
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors }
+  } = useForm<InputForm>({ resolver: zodResolver(loginSchema) });
+
+  const useLoginMutation = useMutation({
+    mutationFn: (body: InputForm) => {
+      return LoginRequest(body);
+    },
+    onSuccess: (data) => {
+      console.log(data);
+      console.log('ok');
+    },
+    onError: (error) => {
+      if (isUnprocessableEntityError<ResponseAPI<InputForm>>(error)) {
+        const formError = error.response?.data.data;
+        if (formError) {
+          Object.keys(formError).forEach((key) =>
+            setError(key as keyof InputForm, {
+              type: 'server',
+              message: formError[key as keyof InputForm]
+            })
+          );
+        }
+      }
+    }
+  });
+
+  const onSubmit = (data: InputForm) => {
+    useLoginMutation.mutate(data);
+  };
+
   return (
     <>
-      <div className='bg-[#ee4d2d]'>
-        <div className='px-4 mx-auto max-w-7xl'>
+      <div className='bg-[#ee4d2d]' onSubmit={handleSubmit(onSubmit)}>
+        <div className='container'>
           <div className='grid grid-cols-1 p-10 py-12 lg:grid-cols-6 lg:py-32 lg:pr-[80px]'>
             <div className='hidden pl-10 text-center text-white lg:block lg:col-start-1 lg:col-span-2 lg:col-end-4'>
               <div className='flex justify-center'>
@@ -31,24 +74,23 @@ export default function Login() {
             <div className='lg:col-start-5 lg:col-span-2'>
               <form className='p-10 bg-white rounded-sm shadow-sm min-w-[380px] '>
                 <div className='text-2xl text-center text-black lg:text-left'>Đăng Nhập</div>
-                <div className='mt-8 '>
-                  <input
-                    className='w-full h-10 p-2 text-sm border border-gray-300 rounded-sm outline-none focus:border-gray-500 focus:shadow-sm'
-                    type='email'
-                    name='email'
-                    placeholder='Email'
-                  />
-                  <div className='mt-1 text-xs text-red-500 min-h-[1rem]'>Vui lòng điền vào mục này</div>
-                </div>
-                <div className='mt-6 '>
-                  <input
-                    className='w-full h-10 p-2 text-sm border border-gray-300 rounded-sm outline-none focus:border-gray-500 focus:shadow-sm'
-                    type='password'
-                    name='password'
-                    placeholder='Password'
-                  />
-                  <div className='mt-1 text-xs text-red-500 min-h-[1rem]'>Vui lòng điền vào mục này</div>
-                </div>
+                <Input
+                  className='mt-8'
+                  name='email'
+                  type='text'
+                  placeholder='Email'
+                  register={register}
+                  errorMessage={errors.email?.message}
+                />
+                <Input
+                  className='mt-3'
+                  name='password'
+                  type='password'
+                  placeholder='Password'
+                  register={register}
+                  errorMessage={errors.password?.message}
+                  autoComplete='on'
+                />
                 <div className='mt-8'>
                   <button className='w-full bg-[#ee4d2d] h-12 rounded-sm uppercase text-white hover:opacity-90'>
                     Đăng Nhập

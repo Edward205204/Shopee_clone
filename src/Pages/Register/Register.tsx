@@ -1,10 +1,69 @@
+// import getRules from '../../utils/rules';
+import { useForm } from 'react-hook-form';
+import registerSchema, { TypeRegSchema } from '../../utils/zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
 import { Link } from 'react-router';
+import Input from '../../components/Input';
+import { RegisterRequest } from '../../APIs/userRegister.api';
+import { omit } from 'lodash';
+import { useEffect } from 'react';
+import { isUnprocessableEntityError } from '../../utils/utils';
+import ResponseAPI from '../../types/ultils';
 
+export type InputForm = TypeRegSchema;
 export default function Register() {
+  const {
+    register,
+    reset,
+    handleSubmit,
+    setError,
+    formState: { errors, isSubmitSuccessful }
+  } = useForm<InputForm>({ resolver: zodResolver(registerSchema) });
+
+  const useRegisterMutation = useMutation({
+    mutationFn: (body: Omit<InputForm, 'confirm_password'>) => {
+      return RegisterRequest(body);
+    },
+    onSuccess: (data) => {
+      console.log(data);
+      console.log('ok');
+    },
+    onError: (error) => {
+      // onError sử lý lỗi từ server
+      if (isUnprocessableEntityError<ResponseAPI<Omit<InputForm, 'confirm_password'>>>(error)) {
+        const formError = error.response?.data.data;
+        if (formError) {
+          Object.keys(formError).forEach((key) =>
+            setError(key as keyof Omit<InputForm, 'confirm_password'>, {
+              type: 'server',
+              message: formError[key as keyof Omit<InputForm, 'confirm_password'>]
+            })
+          );
+        }
+        // if (formError?.email) setError('email', { type: 'server', message: formError.email });
+      }
+    }
+  });
+
+  useEffect(() => {
+    const checkSuccess = async () => {
+      if (useRegisterMutation.isSuccess) {
+        await reset();
+      }
+    };
+    checkSuccess();
+  }, [isSubmitSuccessful, reset, useRegisterMutation.isSuccess]);
+
+  const onSubmit = (data: InputForm) => {
+    const dataSubmit = omit(data, ['confirm_password']);
+    useRegisterMutation.mutate(dataSubmit);
+  };
+
   return (
     <>
-      <div className='bg-[#ee4d2d]'>
-        <div className='px-4 mx-auto max-w-7xl'>
+      <div className='bg-[#ee4d2d]' onSubmit={handleSubmit(onSubmit)}>
+        <div className='container'>
           <div className='grid grid-cols-1 p-10 py-12 lg:grid-cols-6 lg:py-32 lg:pr-[80px]'>
             <div className='hidden pl-10 text-center text-white lg:block lg:col-start-1 lg:col-span-2 lg:col-end-4'>
               <div className='flex justify-center'>
@@ -31,40 +90,42 @@ export default function Register() {
             <div className='lg:col-start-5 lg:col-span-2'>
               <form className='p-10 bg-white rounded-sm shadow-sm min-w-[380px] '>
                 <div className='text-2xl text-center text-black lg:text-left'>Đăng Ký</div>
-                <div className='mt-8 '>
-                  <input
-                    className='w-full h-10 p-2 text-sm border border-gray-300 rounded-sm outline-none focus:border-gray-500 focus:shadow-sm'
-                    type='email'
-                    name='email'
-                    placeholder='Email'
-                  />
-                  <div className='mt-1 text-xs text-red-500 min-h-[1rem]'>Vui lòng điền vào mục này</div>
-                </div>
-                <div className='mt-6 '>
-                  <input
-                    className='w-full h-10 p-2 text-sm border border-gray-300 rounded-sm outline-none focus:border-gray-500 focus:shadow-sm'
-                    type='password'
-                    name='password'
-                    placeholder='Password'
-                  />
-                  <div className='mt-1 text-xs text-red-500 min-h-[1rem]'>Vui lòng điền vào mục này</div>
-                </div>
-                <div className='mt-6 '>
-                  <input
-                    className='w-full h-10 p-2 text-sm border border-gray-300 rounded-sm outline-none focus:border-gray-500 focus:shadow-sm'
-                    type='password'
-                    name='password'
-                    placeholder='Confirm Password'
-                  />
-                  <div className='mt-1 text-xs text-red-500 min-h-[1rem]'>Vui lòng điền vào mục này</div>
-                </div>
+                <Input
+                  className='mt-8'
+                  name='email'
+                  type='text'
+                  placeholder='Email'
+                  register={register}
+                  // rules={getRules(undefined).email}
+                  errorMessage={errors.email?.message}
+                />
+                <Input
+                  className='mt-3'
+                  name='password'
+                  type='password'
+                  placeholder='Password'
+                  register={register}
+                  // rules={getRules(undefined).password}
+                  errorMessage={errors.password?.message}
+                  autoComplete='on'
+                />
+                <Input
+                  className='mt-3'
+                  name='confirm_password'
+                  type='password'
+                  placeholder='Confirm Password'
+                  register={register}
+                  // rules={getRules(pass).confirm_password}
+                  errorMessage={errors.confirm_password?.message}
+                  autoComplete='on'
+                />
                 <div className='mt-8'>
                   <button className='w-full bg-[#ee4d2d] h-12 rounded-sm uppercase text-white hover:opacity-90'>
                     Đăng Ký
                   </button>
                 </div>
                 <div className='flex items-center justify-center mt-3 text-sm'>
-                  <div className='text-gray-400 '>Đã có tài khoản?</div>{' '}
+                  <div className='text-gray-400 '>Đã có tài khoản?</div>
                   <Link to={'/login'} className='ml-1 hover:underline text-[#ee4d2d]'>
                     Đăng nhập
                   </Link>
