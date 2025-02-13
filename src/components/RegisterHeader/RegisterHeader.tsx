@@ -1,6 +1,7 @@
-import { Link } from 'react-router';
+import { Link, useMatch } from 'react-router';
 
 export default function RegisterHeader() {
+  const matchPath = useMatch('/login');
   return (
     <div className='py-5'>
       <div className='container flex items-center justify-between'>
@@ -12,7 +13,7 @@ export default function RegisterHeader() {
               </g>
             </svg>
           </Link>
-          <div className='ml-5 text-xl lg:text-2xl'>Đăng ký</div>
+          <div className='ml-5 text-xl lg:text-2xl'>{matchPath ? 'Đăng nhập' : 'Đăng ký'}</div>
         </nav>
         <Link
           className='text-[#ee4d2d] hover:underline text-sm/[17px]'

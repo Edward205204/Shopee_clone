@@ -1,11 +1,12 @@
 import axios, { AxiosError, AxiosInstance } from 'axios';
 import HttpStatusCode from '../constants/httpStatusEnum';
 import { toast } from 'react-toastify';
-
+import { getAccessTokenFromLS, setAccessTokenToLS } from './auth';
 class Http {
   instance: AxiosInstance;
-
+  private accessToken: string;
   constructor() {
+    this.accessToken = getAccessTokenFromLS();
     this.instance = axios.create({
       baseURL: 'https://api-ecom.duthanhduoc.com/',
       timeout: 10000,
@@ -13,8 +14,23 @@ class Http {
         'Content-Type': 'application/json'
       }
     });
+
+    this.instance.interceptors.request.use((config) => {
+      if (this.accessToken && config.headers) {
+        config.headers.Authorization = this.accessToken;
+        return config;
+      }
+      return config;
+    });
     this.instance.interceptors.response.use(
-      function (response) {
+      (response) => {
+        console.log(response);
+        const { url } = response.config;
+        if (url === 'login' || url === 'register') {
+          this.accessToken = response.data.data.access_token;
+          console.log(this.accessToken);
+          setAccessTokenToLS(this.accessToken);
+        }
         return response;
       },
       function (error: AxiosError) {

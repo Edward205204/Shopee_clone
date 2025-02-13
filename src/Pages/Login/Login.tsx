@@ -1,4 +1,4 @@
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { loginSchema, typeOfLoginSchema } from '../../utils/zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -7,9 +7,14 @@ import { useMutation } from '@tanstack/react-query';
 import { LoginRequest } from '../../APIs/userRegister.api';
 import { isUnprocessableEntityError } from '../../utils/utils';
 import ResponseAPI from '../../types/ultils';
+import { AppContext, IAppContext } from '../../contexts/app.context';
+import { useContext } from 'react';
+import Button from '../../components/Button';
 
 export type InputForm = typeOfLoginSchema;
 export default function Login() {
+  const { setIsAuthenticated } = useContext<IAppContext>(AppContext);
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -21,9 +26,9 @@ export default function Login() {
     mutationFn: (body: InputForm) => {
       return LoginRequest(body);
     },
-    onSuccess: (data) => {
-      console.log(data);
-      console.log('ok');
+    onSuccess: () => {
+      setIsAuthenticated(true);
+      navigate('/');
     },
     onError: (error) => {
       if (isUnprocessableEntityError<ResponseAPI<InputForm>>(error)) {
@@ -91,11 +96,13 @@ export default function Login() {
                   errorMessage={errors.password?.message}
                   autoComplete='on'
                 />
-                <div className='mt-8'>
-                  <button className='w-full bg-[#ee4d2d] h-12 rounded-sm uppercase text-white hover:opacity-90'>
-                    Đăng Nhập
-                  </button>
-                </div>
+                <Button
+                  isLoading={useLoginMutation.isPending}
+                  className='w-full bg-[#ee4d2d] h-12 rounded-sm uppercase text-white hover:opacity-90'
+                  disabled={useLoginMutation.isPending}
+                  content='Đăng Nhập'
+                />
+
                 <div className='flex items-center justify-center mt-3 text-sm'>
                   <div className='text-gray-400 '>Bạn mới biết đến Shopee?</div>
                   <Link to={'/register'} className='ml-1 hover:underline text-[#ee4d2d]'>

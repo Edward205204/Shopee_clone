@@ -9,3 +9,7 @@ export function RegisterRequest(body: Omit<InputForm, 'confirm_password'>) {
 export function LoginRequest(body: Omit<InputForm, 'confirm_password'>) {
   return http.post<AutResponse>('login', body);
 }
+
+export function LogoutRequest() {
+  return http.post<{ message: string }>('logout');
+}

@@ -13,16 +13,26 @@ import {
   arrow,
   useFocus,
   useDismiss,
-  useRole
+  useRole,
+  Placement
 } from '@floating-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface PropType {
   children: React.ReactNode;
+  renderProps: React.ReactNode;
   className?: string;
+  popOverClass?: string;
+  placementProps?: Placement;
 }
 
-export default function PopOver({ children, className }: PropType) {
+export default function PopOver({
+  children,
+  className,
+  renderProps,
+  popOverClass,
+  placementProps = 'bottom-end'
+}: PropType) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const arrowRef = useRef<HTMLSpanElement>(null);
   const data = useFloating({
@@ -31,7 +41,7 @@ export default function PopOver({ children, className }: PropType) {
     middleware: [shift(), flip(), offset(10), inline(), arrow({ element: arrowRef })],
     whileElementsMounted: autoUpdate,
     transform: false,
-    placement: 'bottom-end'
+    placement: placementProps
   });
   const { refs, floatingStyles, context } = data;
   const hover = useHover(context, { handleClose: safePolygon() });
@@ -60,7 +70,7 @@ export default function PopOver({ children, className }: PropType) {
                 ...floatingStyles
               }}
               {...getFloatingProps()}
-              className='p-5 text-sm text-black bg-white shadow-sm cursor-pointer pr-28 '
+              className={popOverClass}
             >
               <span
                 ref={arrowRef}
@@ -68,10 +78,9 @@ export default function PopOver({ children, className }: PropType) {
                   left: data.middlewareData.arrow?.x,
                   top: data.middlewareData.arrow?.y
                 }}
-                className='absolute border-[10px] border-t-transparent border-l-transparent border-r-transparent border-white top-[-18px] left-[50%]'
+                className='absolute border-[10px] border-t-transparent border-l-transparent border-r-transparent border-white top-[-18px]'
               ></span>
-              <button className='hover:text-[#ee4d2d] block mb-4'>Tiếng Việt</button>
-              <button className='hover:text-[#ee4d2d] block'>English</button>
+              {renderProps}
             </motion.div>
           )}
         </AnimatePresence>

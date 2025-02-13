@@ -3,16 +3,20 @@ import { useForm } from 'react-hook-form';
 import registerSchema, { TypeRegSchema } from '../../utils/zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import Input from '../../components/Input';
 import { RegisterRequest } from '../../APIs/userRegister.api';
 import { omit } from 'lodash';
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { isUnprocessableEntityError } from '../../utils/utils';
 import ResponseAPI from '../../types/ultils';
+import { AppContext, IAppContext } from '../../contexts/app.context';
+import Button from '../../components/Button';
 
 export type InputForm = TypeRegSchema;
 export default function Register() {
+  const { setIsAuthenticated } = useContext<IAppContext>(AppContext);
+  const navigate = useNavigate();
   const {
     register,
     reset,
@@ -25,9 +29,9 @@ export default function Register() {
     mutationFn: (body: Omit<InputForm, 'confirm_password'>) => {
       return RegisterRequest(body);
     },
-    onSuccess: (data) => {
-      console.log(data);
-      console.log('ok');
+    onSuccess: () => {
+      setIsAuthenticated(true);
+      navigate('/');
     },
     onError: (error) => {
       // onError sử lý lỗi từ server
@@ -119,11 +123,13 @@ export default function Register() {
                   errorMessage={errors.confirm_password?.message}
                   autoComplete='on'
                 />
-                <div className='mt-8'>
-                  <button className='w-full bg-[#ee4d2d] h-12 rounded-sm uppercase text-white hover:opacity-90'>
-                    Đăng Ký
-                  </button>
-                </div>
+                <Button
+                  isLoading={useRegisterMutation.isPending}
+                  className='w-full bg-[#ee4d2d] h-12 rounded-sm uppercase text-white hover:opacity-90'
+                  disabled={useRegisterMutation.isPending}
+                  content='Đăng ký'
+                />
+
                 <div className='flex items-center justify-center mt-3 text-sm'>
                   <div className='text-gray-400 '>Đã có tài khoản?</div>
                   <Link to={'/login'} className='ml-1 hover:underline text-[#ee4d2d]'>
