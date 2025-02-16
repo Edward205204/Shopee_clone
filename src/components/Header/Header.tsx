@@ -9,8 +9,8 @@ import { removeAccessTokenFromLS } from '../../utils/auth';
 export default function Header() {
   // const matchProfile = useMatch('/profile');
   const { isAuthenticated, setIsAuthenticated } = useContext<IAppContext>(AppContext);
+  console.log('from header', isAuthenticated);
   const navigate = useNavigate();
-
   const useLogoutMutation = useMutation({
     mutationFn: LogoutRequest,
     onSuccess: () => {
