@@ -10,12 +10,12 @@ import { omit } from 'lodash';
 import { useContext, useEffect } from 'react';
 import { isUnprocessableEntityError } from '../../utils/utils';
 import ResponseAPI from '../../types/ultils';
-import { AppContext, IAppContext } from '../../contexts/app.context';
+import { AppContext } from '../../contexts/app.context';
 import Button from '../../components/Button';
 
 export type InputForm = TypeRegSchema;
 export default function Register() {
-  const { setIsAuthenticated } = useContext<IAppContext>(AppContext);
+  const { setIsAuthenticated } = useContext(AppContext);
   const navigate = useNavigate();
   const {
     register,

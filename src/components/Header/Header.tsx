@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router';
 import PopOver from '../PopOver';
-import { AppContext, IAppContext } from '../../contexts/app.context';
+import { AppContext } from '../../contexts/app.context';
 import { useContext } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { LogoutRequest } from '../../APIs/userRegister.api';
@@ -8,8 +8,7 @@ import { removeAccessTokenFromLS } from '../../utils/auth';
 
 export default function Header() {
   // const matchProfile = useMatch('/profile');
-  const { isAuthenticated, setIsAuthenticated } = useContext<IAppContext>(AppContext);
-  console.log('from header', isAuthenticated);
+  const { isAuthenticated, setIsAuthenticated } = useContext(AppContext);
   const navigate = useNavigate();
   const useLogoutMutation = useMutation({
     mutationFn: LogoutRequest,

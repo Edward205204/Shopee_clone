@@ -7,13 +7,13 @@ import { useMutation } from '@tanstack/react-query';
 import { LoginRequest } from '../../APIs/userRegister.api';
 import { isUnprocessableEntityError } from '../../utils/utils';
 import ResponseAPI from '../../types/ultils';
-import { AppContext, IAppContext } from '../../contexts/app.context';
+import { AppContext } from '../../contexts/app.context';
 import { useContext } from 'react';
 import Button from '../../components/Button';
 
 export type InputForm = typeOfLoginSchema;
 export default function Login() {
-  const { setIsAuthenticated } = useContext<IAppContext>(AppContext);
+  const { setIsAuthenticated } = useContext(AppContext);
   const navigate = useNavigate();
   const {
     register,
