@@ -1,7 +1,8 @@
 import axios, { AxiosError, AxiosInstance } from 'axios';
 import HttpStatusCode from '../constants/httpStatusEnum';
 import { toast } from 'react-toastify';
-import { getAccessTokenFromLS, setAccessTokenToLS } from './auth';
+import { getAccessTokenFromLS, setAccessTokenToLS, setProfileToLS } from './auth';
+import path from '../constants/path';
 class Http {
   instance: AxiosInstance;
   private accessToken: string;
@@ -24,12 +25,11 @@ class Http {
     });
     this.instance.interceptors.response.use(
       (response) => {
-        console.log(response);
         const { url } = response.config;
-        if (url === 'login' || url === 'register') {
+        if (url === path.login.slice(1) || url === path.register.slice(1)) {
           this.accessToken = response.data.data.access_token;
-          console.log(this.accessToken);
           setAccessTokenToLS(this.accessToken);
+          setProfileToLS(response.data.data.user);
         }
         return response;
       },

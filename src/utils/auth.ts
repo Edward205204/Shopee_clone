@@ -6,6 +6,16 @@ export function getAccessTokenFromLS() {
   return localStorage.getItem('access_token') || '';
 }
 
-export function removeAccessTokenFromLS() {
+export function removeLocalStorage() {
   localStorage.removeItem('access_token');
+}
+
+export function setProfileToLS(profile: object) {
+  const profileString = JSON.stringify(profile);
+  return profileString ? localStorage.setItem('profile', profileString) : null;
+}
+
+export function getProfileFromLS() {
+  const profile = localStorage.getItem('profile');
+  return profile ? JSON.parse(profile) : null;
 }

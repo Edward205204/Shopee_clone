@@ -12,10 +12,11 @@ import { isUnprocessableEntityError } from '../../utils/utils';
 import ResponseAPI from '../../types/ultils';
 import { AppContext } from '../../contexts/app.context';
 import Button from '../../components/Button';
+import path from '../../constants/path';
 
 export type InputForm = TypeRegSchema;
 export default function Register() {
-  const { setIsAuthenticated } = useContext(AppContext);
+  const { setIsAuthenticated, setProfile } = useContext(AppContext);
   const navigate = useNavigate();
   const {
     register,
@@ -29,9 +30,10 @@ export default function Register() {
     mutationFn: (body: Omit<InputForm, 'confirm_password'>) => {
       return RegisterRequest(body);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       setIsAuthenticated(true);
-      navigate('/');
+      if (data.data.data?.user) setProfile(data.data.data?.user);
+      navigate(path.home);
     },
     onError: (error) => {
       // onError sử lý lỗi từ server
@@ -132,7 +134,7 @@ export default function Register() {
 
                 <div className='flex items-center justify-center mt-3 text-sm'>
                   <div className='text-gray-400 '>Đã có tài khoản?</div>
-                  <Link to={'/login'} className='ml-1 hover:underline text-[#ee4d2d]'>
+                  <Link to={path.login} className='ml-1 hover:underline text-[#ee4d2d]'>
                     Đăng nhập
                   </Link>
                 </div>

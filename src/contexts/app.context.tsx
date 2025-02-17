@@ -1,15 +1,20 @@
 import React, { useState, createContext } from 'react';
-import { getAccessTokenFromLS } from '../utils/auth';
+import { getAccessTokenFromLS, getProfileFromLS } from '../utils/auth';
+import User from '../types/user';
 
 export interface AppContextInterface {
   isAuthenticated: boolean;
   setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
+  profile: User | null;
+  setProfile: React.Dispatch<React.SetStateAction<User | null>>;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const getInitialAppContext: () => AppContextInterface = () => ({
   isAuthenticated: Boolean(getAccessTokenFromLS()),
-  setIsAuthenticated: () => null
+  setIsAuthenticated: () => null,
+  profile: getProfileFromLS(),
+  setProfile: () => null
 });
 // React.PropsWithChildren<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>>
 const initialState = getInitialAppContext();
@@ -24,6 +29,11 @@ export const AppProvider = ({
   defaultValue?: AppContextInterface;
 }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(defaultValue.isAuthenticated);
+  const [profile, setProfile] = useState<User | null>(defaultValue.profile);
 
-  return <AppContext.Provider value={{ isAuthenticated, setIsAuthenticated }}>{children}</AppContext.Provider>;
+  return (
+    <AppContext.Provider value={{ isAuthenticated, setIsAuthenticated, profile, setProfile }}>
+      {children}
+    </AppContext.Provider>
+  );
 };

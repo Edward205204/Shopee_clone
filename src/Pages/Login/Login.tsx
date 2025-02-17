@@ -10,10 +10,11 @@ import ResponseAPI from '../../types/ultils';
 import { AppContext } from '../../contexts/app.context';
 import { useContext } from 'react';
 import Button from '../../components/Button';
+import path from '../../constants/path';
 
 export type InputForm = typeOfLoginSchema;
 export default function Login() {
-  const { setIsAuthenticated } = useContext(AppContext);
+  const { setIsAuthenticated, setProfile } = useContext(AppContext);
   const navigate = useNavigate();
   const {
     register,
@@ -26,9 +27,10 @@ export default function Login() {
     mutationFn: (body: InputForm) => {
       return LoginRequest(body);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       setIsAuthenticated(true);
-      navigate('/');
+      if (data.data.data?.user) setProfile(data.data.data?.user);
+      navigate(path.home);
     },
     onError: (error) => {
       if (isUnprocessableEntityError<ResponseAPI<InputForm>>(error)) {
@@ -105,7 +107,7 @@ export default function Login() {
 
                 <div className='flex items-center justify-center mt-3 text-sm'>
                   <div className='text-gray-400 '>Bạn mới biết đến Shopee?</div>
-                  <Link to={'/register'} className='ml-1 hover:underline text-[#ee4d2d]'>
+                  <Link to={path.register} className='ml-1 hover:underline text-[#ee4d2d]'>
                     Đăng ký
                   </Link>
                 </div>
