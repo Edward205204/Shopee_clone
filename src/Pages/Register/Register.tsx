@@ -104,6 +104,8 @@ export default function Register() {
                   register={register}
                   // rules={getRules(undefined).email}
                   errorMessage={errors.email?.message}
+                  classNameInput='w-full h-10 p-2 text-sm border border-gray-300 rounded-sm outline-none focus:border-gray-500 focus:shadow-sm'
+                  classNameError='mt-1 text-xs text-red-500 min-h-[1rem]'
                 />
                 <Input
                   className='mt-3'
@@ -114,6 +116,8 @@ export default function Register() {
                   // rules={getRules(undefined).password}
                   errorMessage={errors.password?.message}
                   autoComplete='on'
+                  classNameInput='w-full h-10 p-2 text-sm border border-gray-300 rounded-sm outline-none focus:border-gray-500 focus:shadow-sm'
+                  classNameError='mt-1 text-xs text-red-500 min-h-[1rem]'
                 />
                 <Input
                   className='mt-3'
@@ -124,6 +128,8 @@ export default function Register() {
                   // rules={getRules(pass).confirm_password}
                   errorMessage={errors.confirm_password?.message}
                   autoComplete='on'
+                  classNameInput='w-full h-10 p-2 text-sm border border-gray-300 rounded-sm outline-none focus:border-gray-500 focus:shadow-sm'
+                  classNameError='mt-1 text-xs text-red-500 min-h-[1rem]'
                 />
                 <Button
                   isLoading={useRegisterMutation.isPending}

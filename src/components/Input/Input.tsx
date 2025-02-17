@@ -1,14 +1,17 @@
 import { RegisterOptions, UseFormRegister } from 'react-hook-form';
-interface InputProps {
-  type?: React.HTMLInputTypeAttribute;
-  placeholder?: React.InputHTMLAttributes<HTMLInputElement>['placeholder'];
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  // type?: React.HTMLInputTypeAttribute;
+  // placeholder?: React.InputHTMLAttributes<HTMLInputElement>['placeholder'];
+  // className?: string;
+  // name: string;
+  // Ko càn những thuộc tính ở trên vì đã kế thừa từ input mặc định
   errorMessage?: string;
-  className?: string;
   rules?: RegisterOptions;
   autoComplete?: string;
-  name: string;
+  classNameInput?: string;
+  classNameError?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  register: UseFormRegister<any>;
+  register?: UseFormRegister<any>;
 }
 
 export default function Input({
@@ -19,18 +22,21 @@ export default function Input({
   className,
   name,
   rules,
+  classNameInput,
+  classNameError,
   register
 }: InputProps) {
+  const registerOptions = name && register ? register(name, rules) : {};
   return (
     <div className={className}>
       <input
-        className='w-full h-10 p-2 text-sm border border-gray-300 rounded-sm outline-none focus:border-gray-500 focus:shadow-sm'
+        className={classNameInput}
         type={type}
         placeholder={placeholder}
         autoComplete={autoComplete}
-        {...register(name, rules)}
+        {...registerOptions}
       />
-      <div className='mt-1 text-xs text-red-500 min-h-[1rem]'>{errorMessage}</div>
+      <div className={classNameError}>{errorMessage}</div>
     </div>
   );
 }
