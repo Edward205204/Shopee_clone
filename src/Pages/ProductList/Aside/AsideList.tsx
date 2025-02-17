@@ -4,7 +4,7 @@ import Input from '../../../components/Input';
 
 export default function AsideFilter() {
   return (
-    <div className='col-span-2 bg-[#f5f5f5]'>
+    <div className='col-span-2 '>
       <div className='mx-2'>
         <div className='mt-10'>
           <Link to={path.home} className='flex items-center gap-2 mb-4 font-bold'>
