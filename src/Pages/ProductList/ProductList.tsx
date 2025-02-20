@@ -9,11 +9,11 @@ export default function ProductList() {
           <AsideFilter />
           <div className='col-span-10'>
             <SortProductList />
-            <div className='grid grid-cols-2 gap-2 border border-gray-300 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'>
+            <div className='grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'>
               {Array(10)
                 .fill(0)
                 .map((_, index) => (
-                  <div key={index} className='col-span-1 w-full h-[300px] shadow-sm bg-white '>
+                  <div key={index} className='col-span-1 w-full h-[300px]  bg-white border border-gray-300 rounded-sm'>
                     item {index}
                   </div>
                 ))}
