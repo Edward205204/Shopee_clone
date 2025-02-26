@@ -27,7 +27,6 @@ export default function SortProductList() {
             <path d='M7 5l7 7-7 7' stroke='currentColor' strokeWidth={1} />
           </svg>
         </button>
-        <button></button>
       </div>
     </div>
   );
