@@ -37,11 +37,11 @@ export default function Header() {
                 <li className='relative after:content-["|"] after:absolute after:-right-4 after:text-gray-400'>
                   <Link to={path.home}>Tải ứng dụng</Link>
                 </li>
-                <li>
+                <nav>
                   <ul className='flex flex-row items-center justify-between'>
                     <li>Kết nối</li>
                     <li>
-                      <a href={'https://facebook.com'}>
+                      <Link to={'https://facebook.com'}>
                         <svg
                           fill='none'
                           className='w-5 h-5 ml-3'
@@ -51,33 +51,33 @@ export default function Header() {
                           viewBox='-143 145 512 512'
                           style={{ backgroundColor: 'white', borderRadius: '50%' }}
                         >
-                          <g id='SVGRepo_bgCarrier' stroke-width='0'></g>
-                          <g id='SVGRepo_tracerCarrier' stroke-linecap='round' stroke-linejoin='round'></g>
+                          <g id='SVGRepo_bgCarrier' strokeWidth='0'></g>
+                          <g id='SVGRepo_tracerCarrier' strokeLinecap='round' strokeLinejoin='round'></g>
                           <g id='SVGRepo_iconCarrier'>
                             <g>
                               <path
                                 d='M113,145c-141.4,0-256,114.6-256,256s114.6,256,256,256s256-114.6,256-256S254.4,145,113,145z M272.8,560.7 c-20.8,20.8-44.9,37.1-71.8,48.4c-27.8,11.8-57.4,17.7-88,17.7c-30.5,0-60.1-6-88-17.7c-26.9-11.4-51.1-27.7-71.8-48.4 c-20.8-20.8-37.1-44.9-48.4-71.8C-107,461.1-113,431.5-113,401s6-60.1,17.7-88c11.4-26.9,27.7-51.1,48.4-71.8 c20.9-20.8,45-37.1,71.9-48.5C52.9,181,82.5,175,113,175s60.1,6,88,17.7c26.9,11.4,51.1,27.7,71.8,48.4 c20.8,20.8,37.1,44.9,48.4,71.8c11.8,27.8,17.7,57.4,17.7,88c0,30.5-6,60.1-17.7,88C309.8,515.8,293.5,540,272.8,560.7z'
                                 fill='white'
                                 stroke='white'
-                                stroke-width='10'
+                                strokeWidth='10'
                               ></path>
                               <path
                                 d='M146.8,313.7c10.3,0,21.3,3.2,21.3,3.2l6.6-39.2c0,0-14-4.8-47.4-4.8c-20.5,0-32.4,7.8-41.1,19.3 c-8.2,10.9-8.5,28.4-8.5,39.7v25.7H51.2v38.3h26.5v133h49.6v-133h39.3l2.9-38.3h-42.2v-29.9C127.3,317.4,136.5,313.7,146.8,313.7z'
                                 style={{ fill: 'red' }}
-                                stroke-width='20'
+                                strokeWidth='20'
                               ></path>
                             </g>
                           </g>
                         </svg>
-                      </a>
+                      </Link>
                     </li>
                     <li>
-                      <a href='https://instagram.com'>
+                      <Link to='https://instagram.com'>
                         <svg
                           className='w-5 h-5 ml-1 text-headerBg'
                           fill='red'
                           stroke='red'
-                          stroke-width='20'
+                          strokeWidth='20'
                           version='1.1'
                           id='Layer_1'
                           xmlns='http://www.w3.org/2000/svg'
@@ -96,10 +96,10 @@ export default function Header() {
                             </g>
                           </g>
                         </svg>
-                      </a>
+                      </Link>
                     </li>
                   </ul>
-                </li>
+                </nav>
               </ul>
             </nav>
             <div className='flex items-center'>
@@ -111,15 +111,15 @@ export default function Header() {
                     xmlns='http://www.w3.org/2000/svg'
                     className='w-6 h-6 bg-transparent'
                   >
-                    <g id='SVGRepo_bgCarrier' stroke-width='0'></g>
-                    <g id='SVGRepo_tracerCarrier' stroke-linecap='round' stroke-linejoin='round'></g>
+                    <g id='SVGRepo_bgCarrier' strokeWidth='0'></g>
+                    <g id='SVGRepo_tracerCarrier' strokeLinecap='round' strokeLinejoin='round'></g>
                     <g id='SVGRepo_iconCarrier'>
                       <path
                         d='M12 17V16.9929M12 14.8571C12 11.6429 15 12.3571 15 9.85714C15 8.27919 13.6568 7 12 7C10.6567 7 9.51961 7.84083 9.13733 9M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z'
                         stroke='white'
-                        stroke-width='1.5'
-                        stroke-linecap='round'
-                        stroke-linejoin='round'
+                        strokeWidth='1.5'
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
                       ></path>
                     </g>
                   </svg>
@@ -142,43 +142,43 @@ export default function Header() {
                   xmlns='http://www.w3.org/2000/'
                   className='w-5 h-5 bg-transparent'
                 >
-                  <g id='SVGRepo_bgCarrier' stroke-width='0'></g>
-                  <g id='SVGRepo_tracerCarrier' stroke-linecap='round' stroke-linejoin='round'></g>
+                  <g id='SVGRepo_bgCarrier' strokeWidth='0'></g>
+                  <g id='SVGRepo_tracerCarrier' strokeLinecap='round' strokeLinejoin='round'></g>
                   <g id='SVGRepo_iconCarrier'>
                     <path
                       d='M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z'
                       stroke='white'
-                      stroke-width='1.5'
-                      stroke-linecap='round'
-                      stroke-linejoin='round'
+                      strokeWidth='1.5'
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
                     ></path>
                     <path
                       d='M7.99998 3H8.99998C7.04998 8.84 7.04998 15.16 8.99998 21H7.99998'
                       stroke='white'
-                      stroke-width='1.5'
-                      stroke-linecap='round'
-                      stroke-linejoin='round'
+                      strokeWidth='1.5'
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
                     ></path>
                     <path
                       d='M15 3C16.95 8.84 16.95 15.16 15 21'
                       stroke='white'
-                      stroke-width='1.5'
-                      stroke-linecap='round'
-                      stroke-linejoin='round'
+                      strokeWidth='1.5'
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
                     ></path>
                     <path
                       d='M3 16V15C8.84 16.95 15.16 16.95 21 15V16'
                       stroke='white'
-                      stroke-width='1.5'
-                      stroke-linecap='round'
-                      stroke-linejoin='round'
+                      strokeWidth='1.5'
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
                     ></path>
                     <path
                       d='M3 9.0001C8.84 7.0501 15.16 7.0501 21 9.0001'
                       stroke='white'
-                      stroke-width='1.5'
-                      stroke-linecap='round'
-                      stroke-linejoin='round'
+                      strokeWidth='1.5'
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
                     ></path>
                   </g>
                 </svg>
@@ -189,8 +189,8 @@ export default function Header() {
                   xmlns='http://www.w3.org/2000/svg'
                   className='w-5 h-5 bg-transparent'
                 >
-                  <g id='SVGRepo_bgCarrier' stroke-width='0'></g>
-                  <g id='SVGRepo_tracerCarrier' stroke-linecap='round' stroke-linejoin='round'></g>
+                  <g id='SVGRepo_bgCarrier' strokeWidth='0'></g>
+                  <g id='SVGRepo_tracerCarrier' strokeLinecap='round' strokeLinejoin='round'></g>
                   <g id='SVGRepo_iconCarrier'>
                     <path
                       d='M5.70711 9.71069C5.31658 10.1012 5.31658 10.7344 5.70711 11.1249L10.5993 16.0123C11.3805 16.7927 12.6463 16.7924 13.4271 16.0117L18.3174 11.1213C18.708 10.7308 18.708 10.0976 18.3174 9.70708C17.9269 9.31655 17.2937 9.31655 16.9032 9.70708L12.7176 13.8927C12.3271 14.2833 11.6939 14.2832 11.3034 13.8927L7.12132 9.71069C6.7308 9.32016 6.09763 9.32016 5.70711 9.71069Z'
@@ -264,15 +264,15 @@ export default function Header() {
                   xmlns='http://www.w3.org/2000/svg'
                   stroke='#ffffff'
                 >
-                  <g id='SVGRepo_bgCarrier' stroke-width='0'></g>
-                  <g id='SVGRepo_tracerCarrier' stroke-linecap='round' stroke-linejoin='round'></g>
+                  <g id='SVGRepo_bgCarrier' strokeWidth='0'></g>
+                  <g id='SVGRepo_tracerCarrier' strokeLinecap='round' strokeLinejoin='round'></g>
                   <g id='SVGRepo_iconCarrier'>
                     <path
                       d='M14.9536 14.9458L21 21M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z'
                       stroke='#ffffff'
-                      stroke-width='3'
-                      stroke-linecap='round'
-                      stroke-linejoin='round'
+                      strokeWidth='3'
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
                     ></path>
                   </g>
                 </svg>
@@ -332,12 +332,12 @@ export default function Header() {
                     xmlns='http://www.w3.org/2000/svg'
                     className='mb-1 cursor-pointer w-7 h-7'
                   >
-                    <g id='SVGRepo_bgCarrier' stroke-width='0'></g>
-                    <g id='SVGRepo_tracerCarrier' stroke-linecap='round' stroke-linejoin='round'></g>
+                    <g id='SVGRepo_bgCarrier' strokeWidth='0'></g>
+                    <g id='SVGRepo_tracerCarrier' strokeLinecap='round' strokeLinejoin='round'></g>
                     <g id='SVGRepo_iconCarrier'>
                       <path
-                        fill-rule='evenodd'
-                        clip-rule='evenodd'
+                        fillRule='evenodd'
+                        clipRule='evenodd'
                         d='M14 2C14 1.44772 13.5523 1 13 1C12.4477 1 12 1.44772 12 2V8.58579L9.70711 6.29289C9.31658 5.90237 8.68342 5.90237 8.29289 6.29289C7.90237 6.68342 7.90237 7.31658 8.29289 7.70711L12.2929 11.7071C12.6834 12.0976 13.3166 12.0976 13.7071 11.7071L17.7071 7.70711C18.0976 7.31658 18.0976 6.68342 17.7071 6.29289C17.3166 5.90237 16.6834 5.90237 16.2929 6.29289L14 8.58579V2ZM1 3C1 2.44772 1.44772 2 2 2H2.47241C3.82526 2 5.01074 2.90547 5.3667 4.21065L5.78295 5.73688L7.7638 13H18.236L20.2152 5.73709C20.3604 5.20423 20.9101 4.88998 21.4429 5.03518C21.9758 5.18038 22.29 5.73006 22.1448 6.26291L20.1657 13.5258C19.9285 14.3962 19.1381 15 18.236 15H8V16C8 16.5523 8.44772 17 9 17H16.5H18C18.5523 17 19 17.4477 19 18C19 18.212 18.934 18.4086 18.8215 18.5704C18.9366 18.8578 19 19.1715 19 19.5C19 20.8807 17.8807 22 16.5 22C15.1193 22 14 20.8807 14 19.5C14 19.3288 14.0172 19.1616 14.05 19H10.95C10.9828 19.1616 11 19.3288 11 19.5C11 20.8807 9.88071 22 8.5 22C7.11929 22 6 20.8807 6 19.5C6 18.863 6.23824 18.2816 6.63048 17.8402C6.23533 17.3321 6 16.6935 6 16V14.1339L3.85342 6.26312L3.43717 4.73688C3.31852 4.30182 2.92336 4 2.47241 4H2C1.44772 4 1 3.55228 1 3ZM16 19.5C16 19.2239 16.2239 19 16.5 19C16.7761 19 17 19.2239 17 19.5C17 19.7761 16.7761 20 16.5 20C16.2239 20 16 19.7761 16 19.5ZM8 19.5C8 19.2239 8.22386 19 8.5 19C8.77614 19 9 19.2239 9 19.5C9 19.7761 8.77614 20 8.5 20C8.22386 20 8 19.7761 8 19.5Z'
                         fill='#fff'
                       ></path>

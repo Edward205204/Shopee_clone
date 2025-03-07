@@ -26,7 +26,7 @@ export default function Product() {
               <span>1.000</span>
             </div>
           </div>
-          <div className='flex items-center justify-start mb-2'>
+          <div className='flex items-center justify-start mt-2 mb-2'>
             <div className='flex item-center'>
               <div className='relative '>
                 <div className='absolute top-0 left-0 overflow-hidden ' style={{ width: '50%' }}>
@@ -62,7 +62,7 @@ export default function Product() {
                 </svg>
               </div>
             </div>
-            <div className='ml-2 text-sm'>
+            <div className='ml-2 text-xs '>
               <span>5.66k</span>
               <span className='ml-1'>Đã bán</span>
             </div>
