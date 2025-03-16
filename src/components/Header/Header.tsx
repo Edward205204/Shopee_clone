@@ -3,7 +3,7 @@ import PopOver from '../PopOver';
 import { AppContext } from '../../contexts/app.context';
 import { useContext } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { LogoutRequest } from '../../APIs/userRegister.api';
+import { authApi } from '../../APIs/userRegister.api';
 import { removeLocalStorage } from '../../utils/auth';
 import path from '../../constants/path';
 
@@ -12,7 +12,7 @@ export default function Header() {
   const { isAuthenticated, setIsAuthenticated, profile } = useContext(AppContext);
   const navigate = useNavigate();
   const useLogoutMutation = useMutation({
-    mutationFn: LogoutRequest,
+    mutationFn: authApi.LogoutRequest,
     onSuccess: () => {
       setIsAuthenticated(false);
       removeLocalStorage();

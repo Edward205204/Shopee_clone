@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router';
 import Input from '../../components/Input';
-import { RegisterRequest } from '../../APIs/userRegister.api';
+import { authApi } from '../../APIs/userRegister.api';
 import { omit } from 'lodash';
 import { useContext, useEffect } from 'react';
 import { isUnprocessableEntityError } from '../../utils/utils';
@@ -28,7 +28,7 @@ export default function Register() {
 
   const useRegisterMutation = useMutation({
     mutationFn: (body: Omit<InputForm, 'confirm_password'>) => {
-      return RegisterRequest(body);
+      return authApi.RegisterRequest(body);
     },
     onSuccess: (data) => {
       setIsAuthenticated(true);

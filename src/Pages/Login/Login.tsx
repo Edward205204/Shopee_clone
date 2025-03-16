@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Input from '../../components/Input';
 import { useMutation } from '@tanstack/react-query';
-import { LoginRequest } from '../../APIs/userRegister.api';
+import { authApi } from '../../APIs/userRegister.api';
 import { isUnprocessableEntityError } from '../../utils/utils';
 import ResponseAPI from '../../types/ultils';
 import { AppContext } from '../../contexts/app.context';
@@ -25,7 +25,7 @@ export default function Login() {
 
   const useLoginMutation = useMutation({
     mutationFn: (body: InputForm) => {
-      return LoginRequest(body);
+      return authApi.LoginRequest(body);
     },
     onSuccess: (data) => {
       setIsAuthenticated(true);
