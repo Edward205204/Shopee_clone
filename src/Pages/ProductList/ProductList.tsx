@@ -4,8 +4,11 @@ import Product from './Product/Product';
 import SortProductList from './SortList';
 import { ProductApi } from '../../APIs/product.api';
 import { useSearchParam } from '../../hooks/useQueryParams';
+import Pagination from '../../components/Pagination';
+import { useState } from 'react';
 
 export default function ProductList() {
+  const [page, setPage] = useState(1);
   const searchParam = useSearchParam();
   const { data } = useQuery({
     queryKey: ['products', searchParam],
@@ -20,13 +23,9 @@ export default function ProductList() {
           <div className='col-span-10'>
             <SortProductList />
             <div className='grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'>
-              {/* {Array(10)
-                .fill(0)
-                .map((_, index) => (
-                  <Product key={index} />
-                ))} */}
               {data && data?.data.data?.products.map((product) => <Product key={product._id} product={product} />)}
             </div>
+            <Pagination targetPage={page} setPage={setPage} size={6} />
           </div>
         </div>
       </div>

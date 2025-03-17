@@ -1,4 +1,4 @@
-export default function ProductRating({ rating }: { rating: number }) {
+export default function Rating({ rating }: { rating: number }) {
   const calculateRating = (index: number) => {
     if (index <= rating) return '100%';
     if (index > rating && index - rating < 1) return `${(rating - Math.floor(rating)) * 100}%`;

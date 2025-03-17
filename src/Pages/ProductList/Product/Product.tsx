@@ -1,7 +1,7 @@
 import { Link } from 'react-router';
 import { ProductDetail } from '../../../types/products';
 import { formatCurrently, formatSocialStyle } from '../../../utils/utils';
-import ProductRating from './ProductRating';
+import ProductRating from '../../../components/Rating';
 
 type PropsType = {
   product: ProductDetail;
