@@ -37,7 +37,7 @@ export default function Header() {
                 <li className='relative after:content-["|"] after:absolute after:-right-4 after:text-gray-400'>
                   <Link to={path.home}>Tải ứng dụng</Link>
                 </li>
-                <nav>
+                <li>
                   <ul className='flex flex-row items-center justify-between'>
                     <li>Kết nối</li>
                     <li>
@@ -99,7 +99,7 @@ export default function Header() {
                       </Link>
                     </li>
                   </ul>
-                </nav>
+                </li>
               </ul>
             </nav>
             <div className='flex items-center'>
