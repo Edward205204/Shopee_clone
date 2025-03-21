@@ -43,11 +43,10 @@ export default function ProductList() {
           <div className='grid grid-cols-12 gap-4'>
             <AsideFilter />
             <div className='col-span-10'>
-              <SortProductList />
+              <SortProductList queryConfig={queryConfig} pageSize={data.data.data.pagination.page_size} />
               <div className='grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'>
                 {data?.data.data?.products.map((product) => <Product key={product._id} product={product} />)}
               </div>
-
               <Pagination size={data.data.data.pagination.page_size} queryConfig={queryConfig} />
             </div>
           </div>

@@ -1,8 +1,8 @@
 export const sortBy = {
-  createdAt: 'createdAt',
-  view: 'view',
-  sold: 'sold',
-  price: 'price'
+  createdAt: 'createdAt', // mới nhất
+  view: 'view', // phổ biến
+  sold: 'sold', // bán chạy
+  price: 'price' // giá + dùng kèm với order
 } as const;
 
 export const order = {

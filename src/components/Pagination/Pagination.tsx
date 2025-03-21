@@ -60,12 +60,9 @@ export default function Pagination({ queryConfig, size }: Props) {
   return (
     <div className='flex items-center h-4 my-4 mt-24 gap-x-4'>
       {targetPage === 1 ? (
-        <button
-          className={`${defaultStyle} ${targetPage === 1 ? 'cursor-not-allowed opacity-65' : 'hover:opacity-50'}`}
-          disabled
-        >
+        <span className={`${defaultStyle} ${targetPage === 1 ? 'cursor-not-allowed opacity-65' : 'hover:opacity-50'}`}>
           Pre
-        </button>
+        </span>
       ) : (
         <Link
           className={`${defaultStyle} ${targetPage === 1 ? 'cursor-not-allowed opacity-65 ' : 'hover:opacity-50'}`}
@@ -79,12 +76,11 @@ export default function Pagination({ queryConfig, size }: Props) {
       )}
       {renderPagination}
       {targetPage === size ? (
-        <button
+        <span
           className={`${defaultStyle} ${targetPage === size ? 'cursor-not-allowed opacity-65' : 'hover:opacity-50'}`}
-          disabled
         >
           Next
-        </button>
+        </span>
       ) : (
         <Link
           to={{
