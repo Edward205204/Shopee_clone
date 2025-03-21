@@ -1,20 +1,31 @@
-import { Link } from 'react-router';
+import { createSearchParams, Link } from 'react-router';
 import path from '../../../constants/path';
 import Input from '../../../components/Input';
+import { QueryConfig } from '../ProductList';
+import { Categories } from '../../../types/categories';
 
-export default function AsideFilter() {
+interface AsideFilterProps {
+  queryConfig: QueryConfig;
+  dataCategories: Categories[];
+}
+
+export default function AsideFilter({ dataCategories, queryConfig }: AsideFilterProps) {
+  const { category } = queryConfig;
   return (
     <div className='col-span-2 '>
       <div className='mx-2'>
         <div className='mt-10'>
-          <Link to={path.home} className='flex items-center gap-2 mb-4 font-bold'>
+          <Link
+            to={path.home}
+            className={`flex items-center gap-2 mb-4 font-bold ${category === undefined ? 'text-[#ee4d2d]' : ''}`}
+          >
             <svg viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg' className='w-6 h-6'>
               <g id='SVGRepo_bgCarrier' strokeWidth={0} />
               <g id='SVGRepo_tracerCarrier' strokeLinecap='round' strokeLinejoin='round' />
               <g id='SVGRepo_iconCarrier'>
                 <path
                   d='M8 8H20M11 12H20M14 16H20M4 8H4.01M7 12H7.01M10 16H10.01'
-                  stroke='#000000'
+                  stroke='currentColor'
                   strokeWidth={2}
                   strokeLinecap='round'
                   strokeLinejoin='round'
@@ -25,44 +36,39 @@ export default function AsideFilter() {
           </Link>
           <div className='h-[1px] mx-4 mb-2 bg-gray-300' />
           <ul className='ml-4 text-sm'>
-            <li className='mb-2'>
-              <Link to={path.home} className='relative flex items-center font-semibold text-[#ee4d2d]'>
-                <svg
-                  fill='currentColor'
-                  version='1.1'
-                  id='Layer_1'
-                  xmlns='http://www.w3.org/2000/svg'
-                  xmlnsXlink='http://www.w3.org/1999/xlink'
-                  viewBox='0 0 24 24'
-                  xmlSpace='preserve'
-                  className='absolute left-[-12px] w-4 h-4'
-                >
-                  <g id='SVGRepo_bgCarrier' strokeWidth={0} />
-                  <g id='SVGRepo_tracerCarrier' strokeLinecap='round' strokeLinejoin='round' />
-                  <g id='SVGRepo_iconCarrier'>
-                    <style type='text/css' dangerouslySetInnerHTML={{ __html: ' .st0{fill:none;} ' }} />
-                    <path d='M9,18l7-6L9,6V18z' /> <rect className='st0' width={24} height={24} />
-                    <rect className='st0' width={24} height={24} />
-                  </g>
-                </svg>
-                <div className='ml-3'>Thời trang nam</div>
-              </Link>
-            </li>
-            <li className='mb-2'>
-              <Link to={path.home}>
-                <div className='ml-3'>Đồng hồ</div>
-              </Link>
-            </li>
-            <li className='mb-2'>
-              <Link to={path.home}>
-                <div className='ml-3'>Giày</div>
-              </Link>
-            </li>
-            <li className='mb-2'>
-              <Link to={path.home}>
-                <div className='ml-3'>Mũ</div>
-              </Link>
-            </li>
+            {dataCategories.length > 0 &&
+              dataCategories.map((categoryItem) => (
+                <li className='mb-2' key={categoryItem._id}>
+                  <Link
+                    to={{
+                      pathname: path.home,
+                      search: createSearchParams({ ...queryConfig, category: categoryItem._id }).toString()
+                    }}
+                    className={`${category === categoryItem._id ? 'relative flex items-center font-semibold text-[#ee4d2d]' : ''} `}
+                  >
+                    <svg
+                      fill='currentColor'
+                      version='1.1'
+                      id='Layer_1'
+                      xmlns='http://www.w3.org/2000/svg'
+                      xmlnsXlink='http://www.w3.org/1999/xlink'
+                      viewBox='0 0 24 24'
+                      xmlSpace='preserve'
+                      className='absolute left-[-12px] w-4 h-4'
+                      display={category === categoryItem._id ? 'block' : 'none'}
+                    >
+                      <g id='SVGRepo_bgCarrier' strokeWidth={0} />
+                      <g id='SVGRepo_tracerCarrier' strokeLinecap='round' strokeLinejoin='round' />
+                      <g id='SVGRepo_iconCarrier'>
+                        <style type='text/css' dangerouslySetInnerHTML={{ __html: ' .st0{fill:none;} ' }} />
+                        <path d='M9,18l7-6L9,6V18z' /> <rect className='st0' width={24} height={24} />
+                        <rect className='st0' width={24} height={24} />
+                      </g>
+                    </svg>
+                    <div className='ml-3'>{categoryItem.name}</div>
+                  </Link>
+                </li>
+              ))}
           </ul>
         </div>
         <div className='mt-10 '>
