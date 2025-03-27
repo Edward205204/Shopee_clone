@@ -1,15 +1,40 @@
 import { createSearchParams, Link } from 'react-router';
 import path from '../../../constants/path';
-import Input from '../../../components/Input';
 import { QueryConfig } from '../ProductList';
 import { Categories } from '../../../types/categories';
+import InputNumber from '../../../components/InputNumber';
+import Button from '../../../components/Button';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { inputPriceSchema } from '../../../utils/zod';
 
 interface AsideFilterProps {
   queryConfig: QueryConfig;
   dataCategories: Categories[];
 }
 
+interface InputForm {
+  from: string;
+  to: string;
+}
+
 export default function AsideFilter({ dataCategories, queryConfig }: AsideFilterProps) {
+  const {
+    handleSubmit,
+    control,
+    formState: error,
+    watch
+  } = useForm<InputForm>({
+    resolver: zodResolver(inputPriceSchema),
+    defaultValues: { from: '', to: '' }
+  });
+
+  console.log(watch());
+
+  const onSubmit = handleSubmit((data) => {
+    console.log(data);
+  });
+
   const { category } = queryConfig;
   return (
     <div className='col-span-2 '>
@@ -89,23 +114,50 @@ export default function AsideFilter({ dataCategories, queryConfig }: AsideFilter
           <div className='h-[1px] mx-2 mb-2 bg-gray-300' />
 
           <div className='my-5'>
-            <form>
+            <form onSubmit={onSubmit}>
               <div className='mb-2 ml-2'>Khoảng giá</div>
               <div className='flex items-center gap-2 ml-2 text-sm font-normal'>
-                <Input
-                  type='text'
+                <Controller
+                  control={control}
                   name='from'
-                  placeholder='₫ TỪ'
-                  classNameInput='h-8 border border-gray-300 outline-none w-20 p-2'
+                  render={({ field }) => (
+                    <InputNumber
+                      className='relative'
+                      onBlur={field.onBlur}
+                      onChange={field.onChange}
+                      value={field.value}
+                      type='text'
+                      placeholder='₫ TỪ'
+                      classNameInput='h-8 border border-gray-300 outline-none w-20 p-2'
+                      ref={field.ref}
+                    />
+                  )}
                 />
+
+                <Controller
+                  control={control}
+                  name='to'
+                  render={({ field }) => (
+                    <InputNumber
+                      className='relative'
+                      onBlur={field.onBlur}
+                      onChange={field.onChange}
+                      value={field.value}
+                      type='text'
+                      classNameInput='h-8 border border-gray-300 outline-none w-20 p-2'
+                      placeholder='₫ ĐẾN'
+                      ref={field.ref}
+                    />
+                  )}
+                />
+
                 <div className='w-3 h-[2px] bg-gray-300' />
-                <Input
-                  type='text'
-                  name='from'
-                  classNameInput='h-8 border border-gray-300 outline-none w-20 p-2'
-                  placeholder='₫ ĐẾN'
-                />
               </div>
+              <div className='mt-4 text-xs text-center text-red-500 min-h-4 button-0'>{error.errors.to?.message}</div>
+              <Button
+                content='áp dụng'
+                className='px-4 mt-2 ml-1 py-2 uppercase bg-[#ee4d2d] text-white text-xl rounded-sm shadow-sm w-full'
+              />
             </form>
           </div>
         </div>
