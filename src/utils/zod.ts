@@ -69,6 +69,8 @@ export const inputPriceSchema = z
     }
   });
 
+export type typeOfInputPrice = z.infer<typeof inputPriceSchema>;
+
 export const loginSchema = baseSchema.omit({ confirm_password: true });
 export type typeOfLoginSchema = z.infer<typeof loginSchema>;
 

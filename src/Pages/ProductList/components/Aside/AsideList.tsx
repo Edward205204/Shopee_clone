@@ -1,38 +1,52 @@
-import { createSearchParams, Link } from 'react-router';
-import path from '../../../constants/path';
-import { QueryConfig } from '../ProductList';
-import { Categories } from '../../../types/categories';
-import InputNumber from '../../../components/InputNumber';
-import Button from '../../../components/Button';
+import { createSearchParams, Link, useNavigate } from 'react-router';
+import path from '../../../../constants/path';
+import { QueryConfig } from '../../ProductList';
+import { Categories } from '../../../../types/categories';
+import InputNumber from '../../../../components/InputNumber';
+import Button from '../../../../components/Button';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { inputPriceSchema } from '../../../utils/zod';
+import { inputPriceSchema, typeOfInputPrice } from '../../../../utils/zod';
+import { NoUndefined } from '../../../../types/ultils';
+import RatingFilter from '../RatingFilter';
+import { omit } from 'lodash';
 
 interface AsideFilterProps {
   queryConfig: QueryConfig;
   dataCategories: Categories[];
 }
 
-interface InputForm {
-  from: string;
-  to: string;
-}
+type InputForm = NoUndefined<typeOfInputPrice>;
 
 export default function AsideFilter({ dataCategories, queryConfig }: AsideFilterProps) {
+  const navigate = useNavigate();
   const {
     handleSubmit,
     control,
-    formState: error,
-    watch
+    formState: error
   } = useForm<InputForm>({
     resolver: zodResolver(inputPriceSchema),
     defaultValues: { from: '', to: '' }
   });
 
-  console.log(watch());
+  const handleReset = () => {
+    navigate({
+      pathname: path.home,
+      search: createSearchParams({
+        ...omit(queryConfig, ['rating_filter', 'category', 'price_min', 'price_max'])
+      }).toString()
+    });
+  };
 
   const onSubmit = handleSubmit((data) => {
-    console.log(data);
+    navigate({
+      pathname: path.home,
+      search: createSearchParams({
+        ...queryConfig,
+        price_min: data.from,
+        price_max: data.to
+      }).toString()
+    });
   });
 
   const { category } = queryConfig;
@@ -164,83 +178,13 @@ export default function AsideFilter({ dataCategories, queryConfig }: AsideFilter
         <div className='h-[1px] mx-4 mb-2 bg-gray-300' />
         <div className='my-6 font-light'>
           <div className='mb-4 ml-2'>Đánh giá</div>
-          <ul>
-            <li className='mb-2'>
-              <Link to={'/'} className='flex items-center gap-2 ml-2'>
-                <ul className='flex gap-2'>
-                  {Array(5)
-                    .fill(0)
-                    .map((_, index) => (
-                      <li key={index} className='w-4 h-4'>
-                        <svg viewBox='0 0 9.5 8' className='shopee-svg-icon rating-stars__star icon-rating-colored'>
-                          <defs>
-                            <linearGradient id='ratingStarGradient' x1='50%' x2='50%' y1='0%' y2='100%'>
-                              <stop offset={0} stopColor='#ffca11' />
-                              <stop offset={1} stopColor='#ffad27' />
-                            </linearGradient>
-                            <polygon
-                              id='ratingStar'
-                              points='14.910357 6.35294118 12.4209136 7.66171903 12.896355 4.88968305 10.8823529 2.92651626 13.6656353 2.52208166 14.910357 0 16.1550787 2.52208166 18.9383611 2.92651626 16.924359 4.88968305 17.3998004 7.66171903'
-                            />
-                          </defs>
-                          <g fill='url(#ratingStarGradient)' fillRule='evenodd' stroke='none' strokeWidth={1}>
-                            <g transform='translate(-876 -1270)'>
-                              <g transform='translate(155 992)'>
-                                <g transform='translate(600 29)'>
-                                  <g transform='translate(10 239)'>
-                                    <g transform='translate(101 10)'>
-                                      <use stroke='#ffa727' strokeWidth='.5' xlinkHref='#ratingStar' />
-                                    </g>
-                                  </g>
-                                </g>
-                              </g>
-                            </g>
-                          </g>
-                        </svg>
-                      </li>
-                    ))}
-                </ul>
-              </Link>
-            </li>
-            <li className='mb-2'>
-              <Link to={'/'} className='flex items-center gap-2 ml-2'>
-                <ul className='flex gap-2'>
-                  {Array(5)
-                    .fill(0)
-                    .map((_, index) => (
-                      <li key={index} className='w-4 h-4'>
-                        <svg viewBox='0 0 9.5 8' className='shopee-svg-icon rating-stars__star icon-rating-colored'>
-                          <defs>
-                            <linearGradient id='ratingStarGradient' x1='50%' x2='50%' y1='0%' y2='100%'>
-                              <stop offset={0} stopColor='#ffca11' />
-                              <stop offset={1} stopColor='#ffad27' />
-                            </linearGradient>
-                            <polygon
-                              id='ratingStar'
-                              points='14.910357 6.35294118 12.4209136 7.66171903 12.896355 4.88968305 10.8823529 2.92651626 13.6656353 2.52208166 14.910357 0 16.1550787 2.52208166 18.9383611 2.92651626 16.924359 4.88968305 17.3998004 7.66171903'
-                            />
-                          </defs>
-                          <g fill='url(#ratingStarGradient)' fillRule='evenodd' stroke='none' strokeWidth={1}>
-                            <g transform='translate(-876 -1270)'>
-                              <g transform='translate(155 992)'>
-                                <g transform='translate(600 29)'>
-                                  <g transform='translate(10 239)'>
-                                    <g transform='translate(101 10)'>
-                                      <use stroke='#ffa727' strokeWidth='.5' xlinkHref='#ratingStar' />
-                                    </g>
-                                  </g>
-                                </g>
-                              </g>
-                            </g>
-                          </g>
-                        </svg>
-                      </li>
-                    ))}
-                </ul>
-              </Link>
-            </li>
-          </ul>
+          <RatingFilter queryConfig={queryConfig} />
         </div>
+        <Button
+          handleReset={handleReset}
+          content='Xóa tất cả'
+          className='px-4 mt-2 ml-1 py-2 uppercase bg-[#ee4d2d] text-white text-lg rounded-sm shadow-sm w-full'
+        />
       </div>
     </div>
   );

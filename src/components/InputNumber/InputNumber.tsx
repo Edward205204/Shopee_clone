@@ -9,9 +9,6 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
 }
 
-// onBlur={field.onBlur}
-// onChange={field.onChange}
-
 const InputNumber = forwardRef<HTMLInputElement, InputProps>(function InputNumberInter(
   { type, placeholder, className, classNameInput, value, onChange }: InputProps,
   ref
