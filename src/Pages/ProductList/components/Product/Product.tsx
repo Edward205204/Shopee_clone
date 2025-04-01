@@ -2,6 +2,7 @@ import { Link } from 'react-router';
 import { ProductDetail } from '../../../../types/products';
 import { formatCurrently, formatSocialStyle } from '../../../../utils/utils';
 import ProductRating from '../../../../components/Rating';
+import path from '../../../../constants/path';
 
 type PropsType = {
   product: ProductDetail;
@@ -9,7 +10,7 @@ type PropsType = {
 
 export default function Product({ product }: PropsType) {
   return (
-    <Link to={'/'}>
+    <Link to={`${path.home}${product._id}`}>
       <div
         className='bg-white rounded-sm shadow-lg hover:translate-y-[-.25rem] hover:shadow-md duration-100
       transition-transform overflow-hidden min-h-8'

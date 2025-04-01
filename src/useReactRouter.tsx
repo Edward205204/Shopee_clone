@@ -9,6 +9,7 @@ import Profile from './Pages/Profile';
 import { useContext } from 'react';
 import { AppContext } from './contexts/app.context';
 import path from './constants/path';
+import ProductDetail from './Pages/ProductDetail';
 
 export default function useReactRouter() {
   const { isAuthenticated } = useContext(AppContext);
@@ -61,7 +62,20 @@ export default function useReactRouter() {
         }
       ]
     },
-
+    {
+      path: '',
+      element: <ProtectedRoute />,
+      children: [
+        {
+          path: path.productDetail,
+          element: (
+            <MainLayout>
+              <ProductDetail />
+            </MainLayout>
+          )
+        }
+      ]
+    },
     {
       path: '',
       element: <RejectedRoute />,
