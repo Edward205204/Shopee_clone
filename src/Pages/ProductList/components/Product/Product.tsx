@@ -1,20 +1,21 @@
 import { Link } from 'react-router';
 import { ProductDetail } from '../../../../types/products';
-import { formatCurrently, formatSocialStyle } from '../../../../utils/utils';
+import { formatCurrently, formatSocialStyle, generateNameId } from '../../../../utils/utils';
 import ProductRating from '../../../../components/Rating';
 import path from '../../../../constants/path';
 
 type PropsType = {
   product: ProductDetail;
+  className?: string;
 };
 
-export default function Product({ product }: PropsType) {
+export default function Product({
+  product,
+  className = 'bg-white rounded-sm shadow-lg hover:translate-y-[-.25rem] hover:shadow-md duration-100 transition-transform overflow-hidden min-h-8'
+}: PropsType) {
   return (
-    <Link to={`${path.home}${product._id}`}>
-      <div
-        className='bg-white rounded-sm shadow-lg hover:translate-y-[-.25rem] hover:shadow-md duration-100
-      transition-transform overflow-hidden min-h-8'
-      >
+    <Link to={`${path.home}${generateNameId({ name: product.name, id: product._id })}`}>
+      <div className={className}>
         <div className='w-full pt-[100%] relative '>
           <img src={product.image} alt={product.name} className='absolute top-0 left-0 object-cover w-full h-full' />
         </div>
