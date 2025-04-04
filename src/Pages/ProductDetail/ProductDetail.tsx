@@ -3,10 +3,10 @@ import { useParams } from 'react-router';
 import { ProductApi } from '../../APIs/product.api';
 import Rating from '../../components/Rating';
 import { formatCurrently, formatSocialStyle, getIdFromNameId } from '../../utils/utils';
-import InputNumber from '../../components/InputNumber';
 import DOMPurify from 'dompurify';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Product from '../ProductList/components/Product';
+import QuantityController from '../../components/QuantityController';
 
 export default function ProductDetail() {
   const { nameId } = useParams();
@@ -14,6 +14,7 @@ export default function ProductDetail() {
   const [activeImage, setActiveImage] = useState<string>();
   const [currentImage, setCurrentImage] = useState([0, 5]);
   const [currentCategory, setCurrentCategory] = useState([0, 5]);
+  const [quantity, setQuantity] = useState<number>(1);
 
   const imageRef = useRef<HTMLImageElement>(null);
 
@@ -35,10 +36,13 @@ export default function ProductDetail() {
     if (!product) return;
     setActiveImage(product.images[0]);
   }, [product]);
-  // useEffect chỗ này chỉ tracking mỗi product
 
   const handleActiveImage = (img: string) => {
     setActiveImage(img);
+  };
+
+  const handleChangeQuantity = (value: number) => {
+    setQuantity(value);
   };
 
   const handleNextButton = (
@@ -61,15 +65,9 @@ export default function ProductDetail() {
     }
   };
 
-  // const arrayImage = useCallback(() => {
-  //   return product ? product.images.slice(...currentImage) : [];
-  // }, [currentImage, product]);
-  // console.log(arrayImage()); -> invoke vì là useCallback trả về function
-
   const arrayImage = useMemo(() => {
     return product ? product.images.slice(...currentImage) : [];
   }, [currentImage, product]);
-  // console.log(arrayImage); -> Không invoke vì  useMemo  trả về kết quả
 
   const arrayCategory = useMemo(() => {
     if (!category) return [];
@@ -97,7 +95,7 @@ export default function ProductDetail() {
   const onMouseOut = () => {
     const image = imageRef.current;
     if (!image) return;
-    image.style = '';
+    image.removeAttribute('style');
   };
   if (!product) return null;
   return (
@@ -203,35 +201,19 @@ export default function ProductDetail() {
 
             <div className='flex items-center mt-20'>
               <div className='mr-6 text-gray-500'>Số lượng</div>
-              <button className='w-10 h-10 border rounded-l-sm border-r-0 border-[#d0011b] flex items-center justify-center'>
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  fill='none'
-                  viewBox='0 0 24 24'
-                  strokeWidth='1.5'
-                  stroke='currentColor'
-                  className='size-4'
-                >
-                  <path strokeLinecap='round' strokeLinejoin='round' d='M5 12h14' />
-                </svg>
-              </button>
-              <InputNumber
-                value='1'
-                className='w-16 h-10 border border-[#d0011b]'
-                classNameInput='text-[#d0011b] w-full h-full border-none outline-none text-center'
+
+              <QuantityController
+                quantity={quantity}
+                onType={handleChangeQuantity}
+                handleIncrease={handleChangeQuantity}
+                handleDecrease={handleChangeQuantity}
+                max={product.quantity}
               />
-              <button className='w-10 h-10 border  border-l-0 border-[#d0011b] rounded-r-sm flex items-center justify-center'>
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  fill='none'
-                  viewBox='0 0 24 24'
-                  strokeWidth='1.5'
-                  stroke='currentColor'
-                  className='size-4'
-                >
-                  <path strokeLinecap='round' strokeLinejoin='round' d='M12 4.5v15m7.5-7.5h-15' />
-                </svg>
-              </button>
+              <div className='flex ml-6 text-gray-500'>
+                <div className=''>Hiện có:</div>
+                <div className='ml-2 text-[#d0011b]'>{product.quantity}</div>
+                <div className='ml-2 text-gray-500'>sản phẩm</div>
+              </div>
             </div>
             <div className='flex items-center mt-16'>
               <button className='flex items-center min-h-[60px] border justify-center py-1  px-4 text-[#d0011b] bg-[#d0011b]/10 border-[#d0011b] rounded-sm hover:opacity-70'>
@@ -294,12 +276,12 @@ export default function ProductDetail() {
                 return <Product key={product._id} product={product} />;
               })}
 
-            {Boolean(category && arrayCategory.length >= 5) && (
+            {Boolean(category && currentCategory[1] < category.products.length - 1) && (
               <button
                 className='absolute right-0 z-10 px-2 py-2 translate-x-1/2 -translate-y-1/2 bg-white shadow-md top-1/2'
                 onClick={() => {
                   handleNextButton(currentCategory, setCurrentCategory, () =>
-                    Boolean(category && currentCategory[1] < category.products.length)
+                    Boolean(category && currentCategory[1] < category.products.length - 1)
                   );
                 }}
               >

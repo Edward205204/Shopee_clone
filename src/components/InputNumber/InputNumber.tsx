@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 import { RegisterOptions } from 'react-hook-form';
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   rules?: RegisterOptions;
   autoComplete?: string;
   classNameInput?: string;
@@ -10,7 +10,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 const InputNumber = forwardRef<HTMLInputElement, InputProps>(function InputNumberInter(
-  { type, placeholder, className, classNameInput, value, onChange }: InputProps,
+  { type, placeholder, className, classNameInput, value, onChange, ...rest }: InputProps,
   ref
 ) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,6 +29,7 @@ const InputNumber = forwardRef<HTMLInputElement, InputProps>(function InputNumbe
         autoComplete='autoComplete'
         value={value}
         ref={ref}
+        {...rest}
       />
     </div>
   );

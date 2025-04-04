@@ -1,4 +1,5 @@
-import { Link, useNavigate } from 'react-router';
+import { createSearchParams, Link, useNavigate } from 'react-router';
+import { useForm } from 'react-hook-form';
 import PopOver from '../PopOver';
 import { AppContext } from '../../contexts/app.context';
 import { useContext } from 'react';
@@ -6,9 +7,20 @@ import { useMutation } from '@tanstack/react-query';
 import { authApi } from '../../APIs/userRegister.api';
 import { removeLocalStorage } from '../../utils/auth';
 import path from '../../constants/path';
+import { baseSchema } from '../../utils/zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useQueryConfig } from '../../hooks/useQueryConfig';
+import { omit } from 'lodash';
+
+const searchFormSchema = baseSchema.pick({
+  search: true
+});
 
 export default function Header() {
-  // const matchProfile = useMatch('/profile');
+  const queryConfig = useQueryConfig();
+  const { register, handleSubmit } = useForm<{ search: string }>({
+    resolver: zodResolver(searchFormSchema)
+  });
   const { isAuthenticated, setIsAuthenticated, profile } = useContext(AppContext);
   const navigate = useNavigate();
   const useLogoutMutation = useMutation({
@@ -22,6 +34,16 @@ export default function Header() {
 
   const handleLogout = () => {
     useLogoutMutation.mutate();
+  };
+
+  const onSearchSubmit = (data: { search: string }) => {
+    const config = queryConfig.order
+      ? omit({ ...queryConfig, name: data.search.toString() }, ['order', 'sort_by'])
+      : { ...queryConfig, name: data.search.toString() };
+    navigate({
+      pathname: path.home,
+      search: createSearchParams(config).toString()
+    });
   };
 
   return (
@@ -249,10 +271,13 @@ export default function Header() {
                 </g>
               </svg>
             </Link>
-            <form className='relative flex col-start-3 col-end-12 mr-10 h-[80%] translate-y-[20%]'>
+            <form
+              className='relative flex col-start-3 col-end-12 mr-10 h-[80%] translate-y-[20%]'
+              onSubmit={handleSubmit(onSearchSubmit)}
+            >
               <input
                 type='text'
-                name='search'
+                {...register('search')}
                 placeholder='Tìm sản phẩm, thương hiệu, và tên shop'
                 className='w-full h-full px-3 py-4 text-sm border-none rounded-sm shadow-sm outline-none '
               />

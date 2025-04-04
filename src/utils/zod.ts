@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const baseSchema = z.object({
+export const baseSchema = z.object({
   email: z
     .string({
       required_error: 'Email là bắt buộc'
@@ -12,7 +12,8 @@ const baseSchema = z.object({
     .string({ required_error: 'Mật khẩu là bắt buộc' })
     .min(6, 'Mật khẩu phải từ 6 đến 160 ký tự')
     .max(160, 'Mật khẩu phải từ 6 đến 160 ký tự'),
-  confirm_password: z.string({ required_error: 'Nhập lại mật khẩu là bắt buộc' })
+  confirm_password: z.string({ required_error: 'Nhập lại mật khẩu là bắt buộc' }),
+  search: z.string().trim().min(1)
   // .min(6, 'Mật khẩu phải từ 6 đến 160 ký tự')
   // .max(160, 'Mật khẩu phải từ 6 đến 160 ký tự')
 });

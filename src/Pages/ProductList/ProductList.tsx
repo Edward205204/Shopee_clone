@@ -3,14 +3,13 @@ import AsideFilter from './components/Aside';
 import Product from './components/Product/Product';
 import SortProductList from './components/SortList';
 import { ProductApi } from '../../APIs/product.api';
-import { useSearchParam } from '../../hooks/useQueryParams';
 import Pagination from '../../components/Pagination';
 import { ProductConfig } from '../../types/products';
-import { omitBy, isUndefined } from 'lodash';
 import { getCategories } from '../../APIs/categories.api';
 import { createSearchParams, useNavigate } from 'react-router';
 import path from '../../constants/path';
 import { useEffect } from 'react';
+import { useQueryConfig } from '../../hooks/useQueryConfig';
 
 export type QueryConfig = {
   [key in keyof ProductConfig]?: string;
@@ -18,22 +17,23 @@ export type QueryConfig = {
 
 export default function ProductList() {
   const navigate = useNavigate();
-  const searchParam = useSearchParam();
-  const queryConfig: QueryConfig = omitBy(
-    {
-      page: searchParam.page || '1',
-      limit: searchParam.limit,
-      order: searchParam.order,
-      sort_by: searchParam.sort_by,
-      category: searchParam.category,
-      exclude: searchParam.exclude,
-      rating_filter: searchParam.rating_filter,
-      price_max: searchParam.price_max,
-      price_min: searchParam.price_min,
-      name: searchParam.name
-    },
-    isUndefined
-  );
+  // const searchParam = useSearchParam();
+  // const queryConfig: QueryConfig = omitBy(
+  //   {
+  //     page: searchParam.page || '1',
+  //     limit: searchParam.limit,
+  //     order: searchParam.order,
+  //     sort_by: searchParam.sort_by,
+  //     category: searchParam.category,
+  //     exclude: searchParam.exclude,
+  //     rating_filter: searchParam.rating_filter,
+  //     price_max: searchParam.price_max,
+  //     price_min: searchParam.price_min,
+  //     name: searchParam.name
+  //   },
+  //   isUndefined
+  // );
+  const queryConfig = useQueryConfig();
 
   const { data: dataProducts } = useQuery({
     queryKey: ['products', queryConfig],
