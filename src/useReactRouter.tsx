@@ -45,6 +45,14 @@ export default function useReactRouter() {
               <Login />
             </RegisterLayout>
           )
+        },
+        {
+          path: path.register,
+          element: (
+            <RegisterLayout>
+              <Register />
+            </RegisterLayout>
+          )
         }
       ]
     },
@@ -59,33 +67,13 @@ export default function useReactRouter() {
               <Profile />
             </MainLayout>
           )
-        }
-      ]
-    },
-    {
-      path: '',
-      element: <ProtectedRoute />,
-      children: [
+        },
         {
           path: path.productDetail,
           element: (
             <MainLayout>
               <ProductDetail />
             </MainLayout>
-          )
-        }
-      ]
-    },
-    {
-      path: '',
-      element: <RejectedRoute />,
-      children: [
-        {
-          path: path.register,
-          element: (
-            <RegisterLayout>
-              <Register />
-            </RegisterLayout>
           )
         }
       ]

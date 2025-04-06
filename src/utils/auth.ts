@@ -7,7 +7,8 @@ export function getAccessTokenFromLS() {
 }
 
 export function removeLocalStorage() {
-  localStorage.removeItem('access_token');
+  // localStorage.removeItem('access_token');
+  localStorage.clear(); // -> xóa tất cả localStorage
 }
 
 export function setProfileToLS(profile: object) {

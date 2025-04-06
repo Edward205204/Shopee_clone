@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router';
 import { ProductApi } from '../../APIs/product.api';
 import Rating from '../../components/Rating';
@@ -7,20 +7,31 @@ import DOMPurify from 'dompurify';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Product from '../ProductList/components/Product';
 import QuantityController from '../../components/QuantityController';
+import { PurchasesApi } from '../../APIs/purchases.api';
+import { useQueryClient } from '@tanstack/react-query';
+import { purchasesStatus } from '../../constants/purchasesStatus';
 
 export default function ProductDetail() {
+  const queryClient = useQueryClient();
   const { nameId } = useParams();
   const id = getIdFromNameId(nameId as string);
   const [activeImage, setActiveImage] = useState<string>();
   const [currentImage, setCurrentImage] = useState([0, 5]);
   const [currentCategory, setCurrentCategory] = useState([0, 5]);
-  const [quantity, setQuantity] = useState<number>(1);
+  const [quantity, setQuantity] = useState<string>('1');
 
   const imageRef = useRef<HTMLImageElement>(null);
 
   const { data: productResponse } = useQuery({
     queryKey: ['product', id],
     queryFn: () => ProductApi.getProductDetail(id as string)
+  });
+
+  const useMutationPurchase = useMutation({
+    mutationFn: (body: { product_id: string; buy_count: number }) => PurchasesApi.addToCart(body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['purchaseList', purchasesStatus.inCart] });
+    }
   });
 
   const product = productResponse?.data.data;
@@ -41,7 +52,7 @@ export default function ProductDetail() {
     setActiveImage(img);
   };
 
-  const handleChangeQuantity = (value: number) => {
+  const handleChangeQuantity = (value: string) => {
     setQuantity(value);
   };
 
@@ -97,6 +108,11 @@ export default function ProductDetail() {
     if (!image) return;
     image.removeAttribute('style');
   };
+
+  const handleAddToCart = () => {
+    useMutationPurchase.mutate({ product_id: product?._id as string, buy_count: Number(quantity) || 1 });
+  };
+
   if (!product) return null;
   return (
     <div className='bg-gray-200 border-b-2 border-b-[#ee4d2d] '>
@@ -230,7 +246,9 @@ export default function ProductDetail() {
                     <path fill='none' strokeLinecap='round' strokeMiterlimit={10} d='M7.5 7h3M9 8.5v-3' />
                   </svg>
                 </span>
-                <div className='ml-4'>Thêm vào giỏ hàng</div>
+                <div className='ml-4' onClick={handleAddToCart}>
+                  Thêm vào giỏ hàng
+                </div>
               </button>
               <button className='flex flex-col items-center justify-center min-h-[60px] hover:opacity-70 py-2  px-10 ml-12 text-white bg-[#d0011b]  rounded-sm'>
                 <div>Mua với voucher</div>

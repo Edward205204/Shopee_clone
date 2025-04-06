@@ -1,12 +1,13 @@
+import { useState } from 'react';
 import InputNumber from '../InputNumber';
 import { InputProps } from '../InputNumber/InputNumber';
 
 interface QuantityProps extends InputProps {
   max?: number;
-  onType?: (value: number) => void;
-  handleIncrease?: (value: number) => void;
-  handleDecrease?: (value: number) => void;
-  quantity?: number | string;
+  onType?: (value: string) => void;
+  handleIncrease?: (value: string) => void;
+  handleDecrease?: (value: string) => void;
+  quantity?: string;
 }
 
 export default function QuantityController({
@@ -17,34 +18,41 @@ export default function QuantityController({
   quantity,
   ...rest
 }: QuantityProps) {
+  const [localValue, setLocalValue] = useState<string>(quantity || '');
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let _value = Number(e.target.value);
+    if (e.target.value === '') {
+      setLocalValue('');
+      if (onType) onType('');
+      return;
+    }
     if (max !== undefined && _value > max) {
       _value = max - 1;
     } else if (_value < 1) {
       _value = 1;
     }
 
-    if (onType) {
-      onType(_value);
-    }
+    if (onType) onType(_value.toString());
+
+    setLocalValue(_value.toString());
   };
 
   const increase = () => {
-    console.log(max);
-    quantity = Number(quantity);
-    if (max !== undefined && quantity && quantity < max && handleIncrease) {
-      handleIncrease(quantity + 1);
+    const _quantity = Number(quantity) || Number(localValue);
+    if (max !== undefined && _quantity && _quantity < max && handleIncrease) {
+      handleIncrease((_quantity + 1).toString());
+      setLocalValue((_quantity + 1).toString());
     }
   };
 
   const decrease = () => {
-    quantity = Number(quantity);
-    if (max !== undefined && quantity && quantity > 1 && handleDecrease) {
-      handleDecrease(quantity - 1);
+    const _quantity = Number(quantity) || Number(localValue);
+    if (max !== undefined && _quantity && _quantity > 1 && handleDecrease) {
+      handleDecrease((_quantity - 1).toString());
+      setLocalValue((_quantity - 1).toString());
     }
   };
-  console.log(quantity);
 
   return (
     <div className='flex items-center '>
@@ -65,7 +73,7 @@ export default function QuantityController({
       </button>
       <InputNumber
         onChange={handleChange}
-        value={quantity?.toString()}
+        value={quantity || localValue}
         className='w-16 h-10 border border-[#d0011b]'
         classNameInput='text-[#d0011b] w-full h-full border-none outline-none text-center'
         {...rest}

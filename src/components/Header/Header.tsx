@@ -1,22 +1,28 @@
-import { createSearchParams, Link, useNavigate } from 'react-router';
-import { useForm } from 'react-hook-form';
-import PopOver from '../PopOver';
-import { AppContext } from '../../contexts/app.context';
+import { PurchasesApi } from '../../APIs/purchases.api';
 import { useContext } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import path from '../../constants/path';
+import { purchasesStatus } from '../../constants/purchasesStatus';
 import { authApi } from '../../APIs/userRegister.api';
 import { removeLocalStorage } from '../../utils/auth';
-import path from '../../constants/path';
-import { baseSchema } from '../../utils/zod';
-import { zodResolver } from '@hookform/resolvers/zod';
+import PopOver from '../PopOver';
+import emptyPurchaseImage from '../../assets/images/ef577a25315c384ed114.png';
 import { useQueryConfig } from '../../hooks/useQueryConfig';
+import { baseSchema } from '../../utils/zod';
+import { AppContext } from '../../contexts/app.context';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { omit } from 'lodash';
+import { useForm } from 'react-hook-form';
+import { createSearchParams, Link, useNavigate } from 'react-router';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { formatCurrently } from '../../utils/utils';
+import { useQueryClient } from '@tanstack/react-query';
 
 const searchFormSchema = baseSchema.pick({
   search: true
 });
-
 export default function Header() {
+  const queryClient = useQueryClient();
+  const MAX_PURCHASES_RENDER = 5;
   const queryConfig = useQueryConfig();
   const { register, handleSubmit } = useForm<{ search: string }>({
     resolver: zodResolver(searchFormSchema)
@@ -29,12 +35,21 @@ export default function Header() {
       setIsAuthenticated(false);
       removeLocalStorage();
       navigate(path.home);
+      queryClient.removeQueries({ queryKey: ['purchaseList', purchasesStatus.inCart] });
     }
   });
 
   const handleLogout = () => {
     useLogoutMutation.mutate();
   };
+
+  const { data: purchasesRes } = useQuery({
+    queryKey: ['purchaseList', purchasesStatus.inCart],
+    queryFn: () => PurchasesApi.getPurchases({ status: purchasesStatus.inCart }),
+    enabled: isAuthenticated
+  });
+
+  const purchases = purchasesRes?.data.data || [];
 
   const onSearchSubmit = (data: { search: string }) => {
     const config = queryConfig.order
@@ -227,7 +242,10 @@ export default function Header() {
                   popOverClass='text-sm text-black bg-white shadow-sm cursor-pointer '
                   renderProps={
                     <>
-                      <button className='block w-full p-2 mb-2 text-left hover:text-teal-500 hover:bg-slate-200'>
+                      <button
+                        className='block w-full p-2 mb-2 text-left hover:text-teal-500 hover:bg-slate-200'
+                        onClick={() => navigate(path.profile)}
+                      >
                         Tài khoản của tôi
                       </button>
                       <button className='block w-full p-2 mb-2 text-left hover:text-teal-500 hover:bg-slate-200'>
@@ -279,6 +297,7 @@ export default function Header() {
                 type='text'
                 {...register('search')}
                 placeholder='Tìm sản phẩm, thương hiệu, và tên shop'
+                autoComplete='off'
                 className='w-full h-full px-3 py-4 text-sm border-none rounded-sm shadow-sm outline-none '
               />
               <button className='absolute right-1 top-1/2 -translate-y-1/2 flex items-center justify-center px-6 py-2 bg-[#fb5533] rounded-sm shadow-sm transition-all hover:opacity-80 active:scale-95'>
@@ -307,50 +326,51 @@ export default function Header() {
               <PopOver
                 renderProps={
                   <div className='p-4 bg-white rounded-sm shadow-sm w-80'>
-                    <div className='mb-4 text-sm text-gray-500 capitalize'>Sản phẩm mới thêm</div>
-                    <div className='flex items-center mb-4'>
-                      <img
-                        src='https://down-vn.img.susercontent.com/file/vn-11134226-7ras8-m5wba4nnbbjq53_tn'
-                        alt='ảnh sản phẩm'
-                        className='object-cover w-6 h-6 shrink-0'
-                      />
-                      <div className='ml-2 mr-2 overflow-hidden text-sm truncate '>
-                        Bộ Chia 4 Cổng usb c hub 3.0 type c 3.1 Cho xiaomi lenovo macbook pro 13 15 air pro pc
+                    {purchasesRes?.data.data ? (
+                      <>
+                        <div className='mb-4 text-sm text-gray-500 capitalize '>Sản phẩm mới thêm</div>
+                        {purchases.slice(0, MAX_PURCHASES_RENDER).map((purchaseItem) => (
+                          <Link
+                            to={`${path.home}${purchaseItem.product._id}`}
+                            key={purchaseItem._id}
+                            className='flex items-center px-2 py-3 hover:bg-gray-100 hover:cursor-pointer'
+                          >
+                            <img
+                              src={purchaseItem.product.image}
+                              alt='ảnh sản phẩm'
+                              className='object-cover w-6 h-6 shrink-0'
+                            />
+                            <div className='ml-2 mr-2 overflow-hidden text-sm truncate '>
+                              {purchaseItem.product.name}
+                            </div>
+                            <div className='text-[#ee4d2d] text-sm '>
+                              ₫{formatCurrently(purchaseItem.product.price)}
+                            </div>
+                          </Link>
+                        ))}
+                        <div className='flex items-center justify-between mt-3'>
+                          <div className='text-sm text-gray-500 capitalize'>
+                            {purchases.length > MAX_PURCHASES_RENDER ? (
+                              <span className='text-[#fb5533]'>{purchases.length - MAX_PURCHASES_RENDER} </span>
+                            ) : (
+                              ''
+                            )}
+                            Thêm vào giỏ hàng
+                          </div>
+                          <button className='bg-[#fb5533] text-white text-sm hover:opacity-80 py-2 px-1 rounded-sm shadow-sm capitalize'>
+                            Xem giỏ hàng
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className='flex items-center justify-center p-5 w-300px h-300px'>
+                        <img src={emptyPurchaseImage} alt='empty purchase' className='max-w-32 max-h-32' />
                       </div>
-                      <div className='text-[#ee4d2d] text-sm '>₫28.000</div>
-                    </div>
-                    <div className='flex items-center mb-4'>
-                      <img
-                        src='https://down-vn.img.susercontent.com/file/vn-11134226-7ras8-m5wba4nnbbjq53_tn'
-                        alt='ảnh sản phẩm'
-                        className='object-cover w-6 h-6 shrink-0'
-                      />
-                      <div className='ml-2 mr-2 overflow-hidden text-sm truncate '>
-                        Bộ Chia 4 Cổng usb c hub 3.0 type c 3.1 Cho xiaomi lenovo macbook pro 13 15 air pro pc
-                      </div>
-                      <div className='text-[#ee4d2d] text-sm '>₫28.000</div>
-                    </div>
-                    <div className='flex items-center mb-4'>
-                      <img
-                        src='https://down-vn.img.susercontent.com/file/vn-11134226-7ras8-m5wba4nnbbjq53_tn'
-                        alt='ảnh sản phẩm'
-                        className='object-cover w-6 h-6 shrink-0'
-                      />
-                      <div className='ml-2 mr-2 overflow-hidden text-sm truncate '>
-                        Bộ Chia 4 Cổng usb c hub 3.0 type c 3.1 Cho xiaomi lenovo macbook pro 13 15 air pro pc
-                      </div>
-                      <div className='text-[#ee4d2d] text-sm '>₫28.000</div>
-                    </div>
-                    <div className='flex items-center justify-between mt-3'>
-                      <div className='text-sm text-gray-500 capitalize'>Thêm vào giỏ hàng</div>
-                      <button className='bg-[#fb5533] text-white text-sm hover:opacity-80 py-2 px-1 rounded-sm shadow-sm capitalize'>
-                        Xem giỏ hàng
-                      </button>
-                    </div>
+                    )}
                   </div>
                 }
               >
-                <Link to={path.home}>
+                <div className='relative'>
                   <svg
                     viewBox='0 0 24 24'
                     fill='none'
@@ -368,7 +388,12 @@ export default function Header() {
                       ></path>
                     </g>
                   </svg>
-                </Link>
+                  {purchases.length > 0 && (
+                    <span className='absolute top-[-10px] -right-4 text-xs bg-white text-[#fb5533] rounded-full  w-8 px-1  py-[1px] text-center'>
+                      {purchases.length > 99 ? '99+' : purchases.length}
+                    </span>
+                  )}
+                </div>
               </PopOver>
             </div>
           </div>

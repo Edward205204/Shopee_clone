@@ -14,14 +14,7 @@ export const baseSchema = z.object({
     .max(160, 'Mật khẩu phải từ 6 đến 160 ký tự'),
   confirm_password: z.string({ required_error: 'Nhập lại mật khẩu là bắt buộc' }),
   search: z.string().trim().min(1)
-  // .min(6, 'Mật khẩu phải từ 6 đến 160 ký tự')
-  // .max(160, 'Mật khẩu phải từ 6 đến 160 ký tự')
 });
-
-// const registerSchema = baseSchema.refine((data) => data.password === data.confirm_password, {
-//   message: 'Mật khẩu không khớp',
-//   path: ['confirm_password']
-// });
 
 const registerSchema = baseSchema.superRefine((data, ctx) => {
   if (!data.confirm_password || data.confirm_password.trim() === '') {
@@ -72,7 +65,7 @@ export const inputPriceSchema = z
 
 export type typeOfInputPrice = z.infer<typeof inputPriceSchema>;
 
-export const loginSchema = baseSchema.omit({ confirm_password: true });
+export const loginSchema = baseSchema.omit({ confirm_password: true, search: true });
 export type typeOfLoginSchema = z.infer<typeof loginSchema>;
 
 export default registerSchema;
