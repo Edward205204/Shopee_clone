@@ -40,16 +40,17 @@ export default function QuantityController({
 
   const increase = () => {
     const _quantity = Number(quantity) || Number(localValue);
-    if (max !== undefined && _quantity && _quantity < max && handleIncrease) {
-      handleIncrease((_quantity + 1).toString());
+
+    if (max !== undefined && _quantity && _quantity < max) {
+      if (handleIncrease) handleIncrease((_quantity + 1).toString());
       setLocalValue((_quantity + 1).toString());
     }
   };
 
   const decrease = () => {
     const _quantity = Number(quantity) || Number(localValue);
-    if (max !== undefined && _quantity && _quantity > 1 && handleDecrease) {
-      handleDecrease((_quantity - 1).toString());
+    if (max !== undefined && _quantity && _quantity > 1) {
+      if (handleDecrease) handleDecrease((_quantity - 1).toString());
       setLocalValue((_quantity - 1).toString());
     }
   };

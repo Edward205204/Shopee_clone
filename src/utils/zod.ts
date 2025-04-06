@@ -16,22 +16,24 @@ export const baseSchema = z.object({
   search: z.string().trim().min(1)
 });
 
-const registerSchema = baseSchema.superRefine((data, ctx) => {
-  if (!data.confirm_password || data.confirm_password.trim() === '') {
-    ctx.addIssue({
-      path: ['confirm_password'],
-      message: 'Nhập lại mật khẩu là bắt buộc',
-      code: z.ZodIssueCode.custom
-    });
-  }
-  if (data.password !== data.confirm_password) {
-    ctx.addIssue({
-      path: ['confirm_password'],
-      message: 'Mật khẩu không khớp',
-      code: z.ZodIssueCode.custom
-    });
-  }
-});
+const registerSchema = baseSchema
+  .pick({ email: true, password: true, confirm_password: true })
+  .superRefine((data, ctx) => {
+    if (!data.confirm_password || data.confirm_password.trim() === '') {
+      ctx.addIssue({
+        path: ['confirm_password'],
+        message: 'Nhập lại mật khẩu là bắt buộc',
+        code: z.ZodIssueCode.custom
+      });
+    }
+    if (data.password !== data.confirm_password) {
+      ctx.addIssue({
+        path: ['confirm_password'],
+        message: 'Mật khẩu không khớp',
+        code: z.ZodIssueCode.custom
+      });
+    }
+  });
 
 export const inputPriceSchema = z
   .object({
@@ -65,7 +67,7 @@ export const inputPriceSchema = z
 
 export type typeOfInputPrice = z.infer<typeof inputPriceSchema>;
 
-export const loginSchema = baseSchema.omit({ confirm_password: true, search: true });
+export const loginSchema = baseSchema.pick({ email: true, password: true });
 export type typeOfLoginSchema = z.infer<typeof loginSchema>;
 
 export default registerSchema;

@@ -10,6 +10,7 @@ import { useContext } from 'react';
 import { AppContext } from './contexts/app.context';
 import path from './constants/path';
 import ProductDetail from './Pages/ProductDetail';
+import Cart from './Pages/Cart';
 
 export default function useReactRouter() {
   const { isAuthenticated } = useContext(AppContext);
@@ -65,6 +66,14 @@ export default function useReactRouter() {
           element: (
             <MainLayout>
               <Profile />
+            </MainLayout>
+          )
+        },
+        {
+          path: path.cart,
+          element: (
+            <MainLayout>
+              <Cart />
             </MainLayout>
           )
         },

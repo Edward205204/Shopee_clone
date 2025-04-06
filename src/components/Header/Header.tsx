@@ -357,14 +357,18 @@ export default function Header() {
                             )}
                             Thêm vào giỏ hàng
                           </div>
-                          <button className='bg-[#fb5533] text-white text-sm hover:opacity-80 py-2 px-1 rounded-sm shadow-sm capitalize'>
+                          <Link
+                            to={path.cart}
+                            className='bg-[#fb5533] text-white text-sm hover:opacity-80 py-2 px-1 rounded-sm shadow-sm capitalize'
+                          >
                             Xem giỏ hàng
-                          </button>
+                          </Link>
                         </div>
                       </>
                     ) : (
-                      <div className='flex items-center justify-center p-5 w-300px h-300px'>
+                      <div className='flex flex-col items-center justify-center p-5'>
                         <img src={emptyPurchaseImage} alt='empty purchase' className='max-w-32 max-h-32' />
+                        <div className='mt-3'>Không có hàng trong giỏ</div>
                       </div>
                     )}
                   </div>
