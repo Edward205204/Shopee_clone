@@ -6,9 +6,10 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
   disabled?: boolean;
   handleReset?: () => void;
+  handleSubmit?: () => void;
 }
 
-export default function Button({ isLoading, className, content, disabled, handleReset }: ButtonProps) {
+export default function Button({ isLoading, className, content, disabled, handleReset, handleSubmit }: ButtonProps) {
   const newClassName = `${className} ${isLoading ? 'hover:opacity-50 hover:cursor-not-allowed' : ''}`;
   return (
     <div className='mt-2'>
@@ -17,6 +18,7 @@ export default function Button({ isLoading, className, content, disabled, handle
         disabled={disabled}
         onClick={() => {
           if (handleReset) handleReset();
+          if (handleSubmit) handleSubmit();
         }}
       >
         {content}

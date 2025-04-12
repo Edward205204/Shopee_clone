@@ -18,6 +18,7 @@ export const PurchasesApi = {
     return http.delete<ResponseAPI<{ deleted_count: number }>>(`${URL}`, { data: body });
   },
   buyPurchases: (body: { product_id: string; buy_count: number }[]) => {
+    console.log(body);
     return http.post<ResponseAPI<Purchases[]>>(`${URL}/buy-products`, body);
   }
 };

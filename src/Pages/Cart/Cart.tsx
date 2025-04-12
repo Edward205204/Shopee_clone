@@ -7,6 +7,7 @@ import Button from '../../components/Button';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Purchases } from '../../types/purchases';
 import { produce } from 'immer';
+import { toast } from 'react-toastify';
 
 interface PurchasesState extends Purchases {
   disabled: boolean;
@@ -26,6 +27,21 @@ export default function Cart() {
 
   const useMutationCart = useMutation({
     mutationFn: (body: { product_id: string; buy_count: number }) => PurchasesApi.updatePurchases(body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['purchaseList', purchasesStatus.inCart] });
+    }
+  });
+
+  const useMutationBuyCart = useMutation({
+    mutationFn: (body: { product_id: string; buy_count: number }[]) => PurchasesApi.buyPurchases(body),
+    onSuccess: (body) => {
+      queryClient.invalidateQueries({ queryKey: ['purchaseList', purchasesStatus.inCart] });
+      toast.success(body.data.message);
+    }
+  });
+
+  const useMutationDelete = useMutation({
+    mutationFn: (body: string[]) => PurchasesApi.deletePurchases([...body]),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['purchaseList', purchasesStatus.inCart] });
     }
@@ -64,20 +80,19 @@ export default function Cart() {
   };
 
   const isAllChecked = useMemo(() => {
+    if (purchaseState.length === 0) return false;
     return purchaseState.every((item) => item.checked);
   }, [purchaseState]);
 
-  const numberChecked = useMemo(() => {
-    return purchaseState.filter((item) => item.checked).length;
-  }, [purchaseState]);
-
-  const totalPrice = useMemo(() => {
-    return purchaseState.reduce((total, item) => {
-      if (item.checked) {
-        return total + item.price * item.buy_count;
-      }
-      return total;
-    }, 0);
+  const checkedList = useMemo(() => {
+    return purchaseState
+      .filter((item) => item.checked)
+      .map((item) => item._id)
+      .map((item) => {
+        const itemPurchase = purchaseState.find((purchaseItem) => purchaseItem._id === item);
+        if (!itemPurchase) return null;
+        return { product_id: itemPurchase.product._id, buy_count: itemPurchase?.buy_count };
+      });
   }, [purchaseState]);
 
   const handleCheckedAll = () => {
@@ -86,6 +101,14 @@ export default function Cart() {
         return { ...item, checked: !isAllChecked };
       });
     });
+  };
+
+  const handleDeleteCart = (id: string[]) => {
+    if (id.length === 0) {
+      toast.error('Vui lòng chọn sản phẩm để xóa');
+      return;
+    }
+    useMutationDelete.mutate(id);
   };
 
   const handleChangeQuantity = (id: string, quantity: string) => {
@@ -208,7 +231,12 @@ export default function Cart() {
                           <div className='col-span-1 text-[#fb5533] flex items-center justify-center'>
                             ₫{formatCurrently(purchaseItem.price * purchaseItem.buy_count)}
                           </div>
-                          <button className='flex items-center justify-center col-span-1 hover:text-[#fb5533]'>
+                          <button
+                            className='flex items-center justify-center col-span-1 hover:text-[#fb5533]'
+                            onClick={() => {
+                              handleDeleteCart([purchaseItem._id]);
+                            }}
+                          >
                             Xóa
                           </button>
                         </div>
@@ -229,14 +257,31 @@ export default function Cart() {
                   onChange={handleCheckedAll}
                 />
                 <button className='ml-4 hover:cursor-pointer hover:text-[#fb5533] ' onClick={handleCheckedAll}>
-                  Chọn tất cả ({numberChecked} sản phẩm)
+                  Chọn tất cả ({purchaseState.length} sản phẩm)
                 </button>
-                <button className='ml-4 hover:cursor-pointer hover:text-[#fb5533]'>Xóa</button>
+                <button
+                  className='ml-4 hover:cursor-pointer hover:text-[#fb5533]'
+                  onClick={() => {
+                    const idList = purchaseState.map((item) => {
+                      return item._id;
+                    });
+                    handleDeleteCart(idList);
+                  }}
+                >
+                  Xóa
+                </button>
               </div>
               <div className='flex items-center justify-end col-span-6'>
-                <span className='mr-4 '>Tổng cộng ({numberChecked} Sản phẩm): </span>
-                <span className='text-2xl text-[#fb5533] mr-8'>₫{formatCurrently(totalPrice)}</span>
+                <span className='mr-4 '>Tổng cộng ({checkedList.length} Sản phẩm): </span>
+                <span className='text-2xl text-[#fb5533] mr-8'>₫{formatCurrently(12)}</span>
                 <Button
+                  handleSubmit={() => {
+                    if (checkedList.length === 0 || isMutating) {
+                      toast.error('Vui lòng chọn sản phẩm để mua');
+                      return;
+                    }
+                    useMutationBuyCart.mutate(checkedList as { product_id: string; buy_count: number }[]);
+                  }}
                   className='h-full bg-[#ee4d2d] px-12 py-4  rounded-sm shadow-sm capitalize text-white hover:opacity-90'
                   content='Mua hàng'
                 />
