@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import InputNumber from '../InputNumber';
 import { InputProps } from '../InputNumber/InputNumber';
 
@@ -8,6 +8,8 @@ interface QuantityProps extends InputProps {
   handleIncrease?: (value: string) => void;
   handleDecrease?: (value: string) => void;
   quantity?: string;
+  onBlurMutation?: (value: string) => void;
+  disableStyle?: string;
 }
 
 export default function QuantityController({
@@ -16,9 +18,16 @@ export default function QuantityController({
   handleDecrease,
   max,
   quantity,
+  onBlurMutation,
+  disableStyle,
   ...rest
 }: QuantityProps) {
   const [localValue, setLocalValue] = useState<string>(quantity || '');
+
+  useEffect(() => {
+    if (quantity === undefined) return;
+    setLocalValue(quantity);
+  }, [quantity]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let _value = Number(e.target.value);
@@ -58,8 +67,9 @@ export default function QuantityController({
   return (
     <div className='flex items-center '>
       <button
-        className='w-10 h-10 border rounded-l-sm border-r-0 border-[#d0011b] flex items-center justify-center'
+        className={`w-10 h-10 border rounded-l-sm border-r-0 border-[#d0011b] flex items-center justify-center ${disableStyle ? disableStyle : ''}`}
         onClick={decrease}
+        disabled={rest.disabled}
       >
         <svg
           xmlns='http://www.w3.org/2000/svg'
@@ -73,15 +83,22 @@ export default function QuantityController({
         </svg>
       </button>
       <InputNumber
+        disableStyle={disableStyle}
         onChange={handleChange}
-        value={quantity || localValue}
+        value={localValue}
         className='w-16 h-10 border border-[#d0011b]'
         classNameInput='text-[#d0011b] w-full h-full border-none outline-none text-center'
+        onBlur={(e) => {
+          if (onBlurMutation) {
+            onBlurMutation(e.target.value);
+          }
+        }}
         {...rest}
       />
       <button
-        className='w-10 h-10 border  border-l-0 border-[#d0011b] rounded-r-sm flex items-center justify-center'
+        className={`w-10 h-10 border  border-l-0 border-[#d0011b] rounded-r-sm flex items-center justify-center ${disableStyle ? disableStyle : ''}`}
         onClick={increase}
+        disabled={rest.disabled}
       >
         <svg
           xmlns='http://www.w3.org/2000/svg'

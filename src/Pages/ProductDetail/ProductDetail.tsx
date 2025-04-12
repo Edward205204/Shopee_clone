@@ -10,6 +10,7 @@ import QuantityController from '../../components/QuantityController';
 import { PurchasesApi } from '../../APIs/purchases.api';
 import { useQueryClient } from '@tanstack/react-query';
 import { purchasesStatus } from '../../constants/purchasesStatus';
+import { toast } from 'react-toastify';
 
 export default function ProductDetail() {
   const queryClient = useQueryClient();
@@ -29,8 +30,9 @@ export default function ProductDetail() {
 
   const useMutationPurchase = useMutation({
     mutationFn: (body: { product_id: string; buy_count: number }) => PurchasesApi.addToCart(body),
-    onSuccess: () => {
+    onSuccess: (body) => {
       queryClient.invalidateQueries({ queryKey: ['purchaseList', purchasesStatus.inCart] });
+      toast.success(body.data.message);
     }
   });
 
@@ -232,7 +234,10 @@ export default function ProductDetail() {
               </div>
             </div>
             <div className='flex items-center mt-16'>
-              <button className='flex items-center min-h-[60px] border justify-center py-1  px-4 text-[#d0011b] bg-[#d0011b]/10 border-[#d0011b] rounded-sm hover:opacity-70'>
+              <button
+                className='flex items-center min-h-[60px] border justify-center py-1  px-4 text-[#d0011b] bg-[#d0011b]/10 border-[#d0011b] rounded-sm hover:opacity-70'
+                onClick={handleAddToCart}
+              >
                 <span>
                   <svg xmlns='http://www.w3.org/2000/svg' width={15} height={15} fill='#d0011b' stroke='#d0011b'>
                     <path
@@ -246,9 +251,7 @@ export default function ProductDetail() {
                     <path fill='none' strokeLinecap='round' strokeMiterlimit={10} d='M7.5 7h3M9 8.5v-3' />
                   </svg>
                 </span>
-                <div className='ml-4' onClick={handleAddToCart}>
-                  Thêm vào giỏ hàng
-                </div>
+                <div className='ml-4'>Thêm vào giỏ hàng</div>
               </button>
               <button className='flex flex-col items-center justify-center min-h-[60px] hover:opacity-70 py-2  px-10 ml-12 text-white bg-[#d0011b]  rounded-sm'>
                 <div>Mua với voucher</div>

@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useIsMutating, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { purchasesStatus } from '../../constants/purchasesStatus';
 import { PurchasesApi } from '../../APIs/purchases.api';
 import { formatCurrently } from '../../utils/utils';
@@ -6,42 +6,64 @@ import QuantityController from '../../components/QuantityController';
 import Button from '../../components/Button';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Purchases } from '../../types/purchases';
+import { produce } from 'immer';
 
 interface PurchasesState extends Purchases {
-  enable: boolean;
+  disabled: boolean;
   checked: boolean;
 }
 
 export default function Cart() {
+  // Dùng useIsMutating để kiểm tra xem có mutation nào đang diễn ra hay không
+  const isMutating = useIsMutating();
+
+  const queryClient = useQueryClient();
   const { data: purchasesRes } = useQuery({
     queryKey: ['purchaseList', purchasesStatus.inCart],
     queryFn: () => PurchasesApi.getPurchases({ status: purchasesStatus.inCart })
   });
   const [purchaseState, setPurchaseState] = useState<PurchasesState[]>([]);
 
+  const useMutationCart = useMutation({
+    mutationFn: (body: { product_id: string; buy_count: number }) => PurchasesApi.updatePurchases(body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['purchaseList', purchasesStatus.inCart] });
+    }
+  });
+
   const purchases = purchasesRes?.data.data;
 
   useEffect(() => {
-    if (!purchases) return;
-    const purchasesList = purchases.map((item) => {
-      return { ...item, enable: false, checked: false };
-    });
-    setPurchaseState(purchasesList);
+    /**
+   *  Tạo Map mới từ danh sách sản phẩm trước đó
+        key là id của mỗi item,và value là item đó
+        duyệt qua purchases được fetch lại, kiểm tra item cũ đã có chưa bằng cách get(id của purchase mới) vào Map mới được tạo bằng id
+        nếu đã có trong Map tức có đc checked ròi thì không cần tạo lại checked nữa
+        nếu chưa có thì checked = false disabled = false
+   */
+    if (purchases) {
+      setPurchaseState((prev) => {
+        const prevPurchaseState = new Map(prev.map((p) => [p._id, p]));
+        return purchases.map((item) => {
+          const oldItem = prevPurchaseState.get(item._id);
+          return oldItem
+            ? { ...item, checked: oldItem.checked, disabled: false }
+            : { ...item, checked: false, disabled: false };
+        });
+      });
+    }
   }, [purchases]);
 
-  const handleChecked = (e: React.ChangeEvent<HTMLInputElement>, id: string) => {
+  const handleChecked = (e: React.ChangeEvent<HTMLInputElement>, itemIndex: number) => {
     const { checked } = e.target;
-    setPurchaseState((prev) => {
-      return prev.map((item) => {
-        if (item._id === id) {
-          return { ...item, checked: checked };
-        }
-        return item;
-      });
-    });
+    setPurchaseState(
+      produce(purchaseState, (draft) => {
+        draft[itemIndex].checked = checked;
+      })
+    );
   };
 
-  const activeChecked = useMemo(() => {
+  const isAllChecked = useMemo(() => {
     return purchaseState.every((item) => item.checked);
   }, [purchaseState]);
 
@@ -49,20 +71,60 @@ export default function Cart() {
     return purchaseState.filter((item) => item.checked).length;
   }, [purchaseState]);
 
+  const totalPrice = useMemo(() => {
+    return purchaseState.reduce((total, item) => {
+      if (item.checked) {
+        return total + item.price * item.buy_count;
+      }
+      return total;
+    }, 0);
+  }, [purchaseState]);
+
   const handleCheckedAll = () => {
-    if (activeChecked) {
-      setPurchaseState((prev) => {
-        return prev.map((item) => {
-          return { ...item, checked: false };
-        });
+    setPurchaseState((prev) => {
+      return prev.map((item) => {
+        return { ...item, checked: !isAllChecked };
       });
-    } else {
-      setPurchaseState((prev) => {
-        return prev.map((item) => {
-          return { ...item, checked: true };
+    });
+  };
+
+  const handleChangeQuantity = (id: string, quantity: string) => {
+    setPurchaseState((prev) =>
+      produce(prev, (draft) => {
+        draft.forEach((item) => {
+          item.disabled = true;
+          if (item._id === id) {
+            item.buy_count = Number(quantity);
+          }
         });
+      })
+    );
+
+    useMutationCart.mutate({ product_id: id, buy_count: Number(quantity) });
+  };
+
+  const handleOnType = (id: string) => (value: string) => {
+    setPurchaseState(
+      produce(purchaseState, (draft) => {
+        const item = draft.find((item) => item._id === id);
+        if (item) {
+          item.buy_count = Number(value);
+        }
+      })
+    );
+  };
+
+  const handleBlur = (id: string) => (value: string) => {
+    setPurchaseState((prev) => {
+      return prev.map((item) => {
+        if (item._id === id) {
+          return { ...item, disabled: true };
+        }
+        return { ...item, disabled: true };
       });
-    }
+    });
+
+    useMutationCart.mutate({ product_id: id, buy_count: Number(value) });
   };
 
   if (!purchases) {
@@ -82,7 +144,7 @@ export default function Cart() {
                         type='checkbox'
                         className=' accent-[#fb5533] w-4 h-4 hover:cursor-pointer'
                         onChange={handleCheckedAll}
-                        checked={activeChecked}
+                        checked={isAllChecked}
                       />
                       <div className='ml-8'>Sản phẩm</div>
                     </div>
@@ -98,7 +160,7 @@ export default function Cart() {
               <div className='pt-6 pb-4 mt-4 bg-white rounded-sm shadow-sm'>
                 <div className='py-4 mb-2 ml-6 text-xl'>Danh sách giỏ hàng</div>
 
-                {purchaseState.map((purchaseItem) => {
+                {purchaseState.map((purchaseItem, index) => {
                   return (
                     <div className=' border-b border-[#e5e7eb] p-6' key={purchaseItem._id}>
                       <div className='grid grid-cols-12 '>
@@ -108,7 +170,7 @@ export default function Cart() {
                               type='checkbox'
                               className=' accent-[#fb5533] w-4 h-4 flex-shrink-0 hover:cursor-pointer'
                               checked={purchaseItem.checked}
-                              onChange={(event) => handleChecked(event, purchaseItem._id)}
+                              onChange={(event) => handleChecked(event, index)}
                             />
                             <div className='object-cover w-12 h-12 ml-8'>
                               <img
@@ -129,8 +191,18 @@ export default function Cart() {
                           </div>
                           <div className='flex items-center justify-center col-span-2'>
                             <QuantityController
+                              disableStyle={isMutating ? 'opacity-50 cursor-not-allowed' : ''}
+                              disabled={purchaseItem.disabled}
                               quantity={purchaseItem.buy_count.toString()}
                               max={purchaseItem.product.quantity}
+                              onType={handleOnType(purchaseItem.product._id)}
+                              handleIncrease={() => {
+                                handleChangeQuantity(purchaseItem.product._id, (purchaseItem.buy_count + 1).toString());
+                              }}
+                              handleDecrease={() => {
+                                handleChangeQuantity(purchaseItem.product._id, (purchaseItem.buy_count - 1).toString());
+                              }}
+                              onBlurMutation={handleBlur(purchaseItem.product._id)}
                             />
                           </div>
                           <div className='col-span-1 text-[#fb5533] flex items-center justify-center'>
@@ -153,7 +225,7 @@ export default function Cart() {
                 <input
                   type='checkbox'
                   className=' accent-[#fb5533] w-4 h-4 hover:cursor-pointer flex-shrink-0'
-                  checked={activeChecked}
+                  checked={isAllChecked}
                   onChange={handleCheckedAll}
                 />
                 <button className='ml-4 hover:cursor-pointer hover:text-[#fb5533] ' onClick={handleCheckedAll}>
@@ -162,8 +234,8 @@ export default function Cart() {
                 <button className='ml-4 hover:cursor-pointer hover:text-[#fb5533]'>Xóa</button>
               </div>
               <div className='flex items-center justify-end col-span-6'>
-                <span className='mr-4 '>Tổng cộng ({purchaseState.length} Sản phẩm): </span>
-                <span className='text-2xl text-[#fb5533] mr-8'>₫100</span>
+                <span className='mr-4 '>Tổng cộng ({numberChecked} Sản phẩm): </span>
+                <span className='text-2xl text-[#fb5533] mr-8'>₫{formatCurrently(totalPrice)}</span>
                 <Button
                   className='h-full bg-[#ee4d2d] px-12 py-4  rounded-sm shadow-sm capitalize text-white hover:opacity-90'
                   content='Mua hàng'
