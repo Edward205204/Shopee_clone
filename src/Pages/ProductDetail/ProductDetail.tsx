@@ -36,6 +36,12 @@ export default function ProductDetail() {
     }
   });
 
+  const useMutationBuyProduct = useMutation({
+    mutationFn: (body: { product_id: string; buy_count: number }[]) => PurchasesApi.buyPurchases(body),
+    onSuccess: (body) => {
+      toast.success(body.data.message);
+    }
+  });
   const product = productResponse?.data.data;
 
   const { data: categoryResponse } = useQuery({
@@ -78,6 +84,17 @@ export default function ProductDetail() {
     }
   };
 
+  const handleBuyProduct = () => {
+    if (!product) return;
+    const body = [
+      {
+        product_id: product._id,
+        buy_count: Number(quantity) || 1
+      }
+    ];
+
+    useMutationBuyProduct.mutate(body);
+  };
   const arrayImage = useMemo(() => {
     return product ? product.images.slice(...currentImage) : [];
   }, [currentImage, product]);
@@ -253,7 +270,10 @@ export default function ProductDetail() {
                 </span>
                 <div className='ml-4'>Thêm vào giỏ hàng</div>
               </button>
-              <button className='flex flex-col items-center justify-center min-h-[60px] hover:opacity-70 py-2  px-10 ml-12 text-white bg-[#d0011b]  rounded-sm'>
+              <button
+                className='flex flex-col items-center justify-center min-h-[60px] hover:opacity-70 py-2  px-10 ml-12 text-white bg-[#d0011b]  rounded-sm'
+                onClick={handleBuyProduct}
+              >
                 <div>Mua với voucher</div>
                 <div className='flex justify-center ml-4 text-xl font-normal item-center'>
                   <span>₫</span>

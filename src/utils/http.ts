@@ -1,8 +1,9 @@
 import axios, { AxiosError, AxiosInstance } from 'axios';
 import HttpStatusCode from '../constants/httpStatusEnum';
 import { toast } from 'react-toastify';
-import { getAccessTokenFromLS, setAccessTokenToLS, setProfileToLS } from './auth';
+import { getAccessTokenFromLS, removeLocalStorage, setAccessTokenToLS, setProfileToLS } from './auth';
 import path from '../constants/path';
+
 class Http {
   instance: AxiosInstance;
   private accessToken: string;
@@ -17,6 +18,7 @@ class Http {
     });
 
     this.instance.interceptors.request.use((config) => {
+      this.accessToken = getAccessTokenFromLS(); // lấy lại token từ localStorage
       if (this.accessToken && config.headers) {
         config.headers.Authorization = this.accessToken;
         return config;
@@ -33,12 +35,21 @@ class Http {
         }
         return response;
       },
-      function (error: AxiosError) {
+      (error: AxiosError) => {
         if (error.response?.status !== HttpStatusCode.UnprocessableEntity) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const errorHandle: any | undefined = error.response?.data;
           const message = errorHandle?.message || error.message;
-          toast.error(message);
+          const toastId = 'authError';
+          toast.error(message, { toastId });
+
+          // Handle 401 Unauthorized error -> thì đăng xuất
+          if (error.response?.status === HttpStatusCode.Unauthorized) {
+            removeLocalStorage();
+            setTimeout(() => {
+              window.location.href = path.login;
+            }, 2000);
+          }
         }
         return Promise.reject(error);
       }

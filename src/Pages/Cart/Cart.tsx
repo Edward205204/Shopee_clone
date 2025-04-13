@@ -32,7 +32,7 @@ export default function Cart() {
     }
   });
 
-  const useMutationBuyCart = useMutation({
+  const useMutationBuyProduct = useMutation({
     mutationFn: (body: { product_id: string; buy_count: number }[]) => PurchasesApi.buyPurchases(body),
     onSuccess: (body) => {
       queryClient.invalidateQueries({ queryKey: ['purchaseList', purchasesStatus.inCart] });
@@ -91,9 +91,23 @@ export default function Cart() {
       .map((item) => {
         const itemPurchase = purchaseState.find((purchaseItem) => purchaseItem._id === item);
         if (!itemPurchase) return null;
-        return { product_id: itemPurchase.product._id, buy_count: itemPurchase?.buy_count };
+        return itemPurchase;
       });
   }, [purchaseState]);
+
+  const sumOfCheckedList = useMemo(() => {
+    return checkedList.reduce((total, item) => {
+      if (!item) return total;
+      return total + item.price * item.buy_count;
+    }, 0);
+  }, [checkedList]);
+
+  const sumDiscount = useMemo(() => {
+    return checkedList.reduce((total, item) => {
+      if (!item) return total;
+      return total + (item.price_before_discount - item.price) * item.buy_count;
+    }, 0);
+  }, [checkedList]);
 
   const handleCheckedAll = () => {
     setPurchaseState((prev) => {
@@ -104,10 +118,15 @@ export default function Cart() {
   };
 
   const handleDeleteCart = (id: string[]) => {
+    const toastId = 'deleteCart';
     if (id.length === 0) {
-      toast.error('Vui lòng chọn sản phẩm để xóa');
+      toast.error('Vui lòng chọn sản phẩm để xóa', {
+        toastId,
+        autoClose: 3000
+      });
       return;
     }
+
     useMutationDelete.mutate(id);
   };
 
@@ -165,7 +184,7 @@ export default function Cart() {
                     <div className='flex items-center'>
                       <input
                         type='checkbox'
-                        className=' accent-[#fb5533] w-4 h-4 hover:cursor-pointer'
+                        className={` accent-[#fb5533] w-4 h-4 hover:cursor-pointer ${purchaseState.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
                         onChange={handleCheckedAll}
                         checked={isAllChecked}
                       />
@@ -183,67 +202,82 @@ export default function Cart() {
               <div className='pt-6 pb-4 mt-4 bg-white rounded-sm shadow-sm'>
                 <div className='py-4 mb-2 ml-6 text-xl'>Danh sách giỏ hàng</div>
 
-                {purchaseState.map((purchaseItem, index) => {
-                  return (
-                    <div className=' border-b border-[#e5e7eb] p-6' key={purchaseItem._id}>
-                      <div className='grid grid-cols-12 '>
-                        <div className='col-span-6'>
-                          <div className='flex items-center'>
-                            <input
-                              type='checkbox'
-                              className=' accent-[#fb5533] w-4 h-4 flex-shrink-0 hover:cursor-pointer'
-                              checked={purchaseItem.checked}
-                              onChange={(event) => handleChecked(event, index)}
-                            />
-                            <div className='object-cover w-12 h-12 ml-8'>
-                              <img
-                                src={purchaseItem.product.image}
-                                className='w-full h-full'
-                                alt={purchaseItem.product.name}
-                              />
+                {purchaseState.length > 0 ? (
+                  <>
+                    {purchaseState.map((purchaseItem, index) => {
+                      return (
+                        <div className=' border-b border-[#e5e7eb] p-6' key={purchaseItem._id}>
+                          <div className='grid grid-cols-12 '>
+                            <div className='col-span-6'>
+                              <div className='flex items-center'>
+                                <input
+                                  disabled={purchaseState.length === 0}
+                                  type='checkbox'
+                                  className='accent-[#fb5533] w-4 h-4 flex-shrink-0 hover:cursor-pointer $'
+                                  checked={purchaseItem.checked}
+                                  onChange={(event) => handleChecked(event, index)}
+                                />
+                                <div className='object-cover w-12 h-12 ml-8'>
+                                  <img
+                                    src={purchaseItem.product.image}
+                                    className='w-full h-full'
+                                    alt={purchaseItem.product.name}
+                                  />
+                                </div>
+                                <div className='ml-4 text-sm'>{purchaseItem.product.name}</div>
+                              </div>
                             </div>
-                            <div className='ml-4 text-sm'>{purchaseItem.product.name}</div>
+                            <div className='grid grid-cols-6 col-span-6 text-center'>
+                              <div className='flex items-center justify-center col-span-2'>
+                                <div className='text-gray-500 line-through'>
+                                  ₫{formatCurrently(purchaseItem.price_before_discount)}
+                                </div>
+                                <div className='ml-2'>₫{formatCurrently(purchaseItem.price)}</div>
+                              </div>
+                              <div className='flex items-center justify-center col-span-2'>
+                                <QuantityController
+                                  disableStyle={isMutating ? 'opacity-50 cursor-not-allowed' : ''}
+                                  disabled={purchaseItem.disabled}
+                                  quantity={purchaseItem.buy_count.toString()}
+                                  max={purchaseItem.product.quantity}
+                                  onType={handleOnType(purchaseItem.product._id)}
+                                  handleIncrease={() => {
+                                    handleChangeQuantity(
+                                      purchaseItem.product._id,
+                                      (purchaseItem.buy_count + 1).toString()
+                                    );
+                                  }}
+                                  handleDecrease={() => {
+                                    handleChangeQuantity(
+                                      purchaseItem.product._id,
+                                      (purchaseItem.buy_count - 1).toString()
+                                    );
+                                  }}
+                                  onBlurMutation={handleBlur(purchaseItem.product._id)}
+                                />
+                              </div>
+                              <div className='col-span-1 text-[#fb5533] flex items-center justify-center'>
+                                ₫{formatCurrently(purchaseItem.price * purchaseItem.buy_count)}
+                              </div>
+                              <button
+                                className='flex items-center justify-center col-span-1 hover:text-[#fb5533]'
+                                onClick={() => {
+                                  handleDeleteCart([purchaseItem._id]);
+                                }}
+                              >
+                                Xóa
+                              </button>
+                            </div>
                           </div>
                         </div>
-                        <div className='grid grid-cols-6 col-span-6 text-center'>
-                          <div className='flex items-center justify-center col-span-2'>
-                            <div className='text-gray-500 line-through'>
-                              ₫{formatCurrently(purchaseItem.price_before_discount)}
-                            </div>
-                            <div className='ml-2'>₫{formatCurrently(purchaseItem.price)}</div>
-                          </div>
-                          <div className='flex items-center justify-center col-span-2'>
-                            <QuantityController
-                              disableStyle={isMutating ? 'opacity-50 cursor-not-allowed' : ''}
-                              disabled={purchaseItem.disabled}
-                              quantity={purchaseItem.buy_count.toString()}
-                              max={purchaseItem.product.quantity}
-                              onType={handleOnType(purchaseItem.product._id)}
-                              handleIncrease={() => {
-                                handleChangeQuantity(purchaseItem.product._id, (purchaseItem.buy_count + 1).toString());
-                              }}
-                              handleDecrease={() => {
-                                handleChangeQuantity(purchaseItem.product._id, (purchaseItem.buy_count - 1).toString());
-                              }}
-                              onBlurMutation={handleBlur(purchaseItem.product._id)}
-                            />
-                          </div>
-                          <div className='col-span-1 text-[#fb5533] flex items-center justify-center'>
-                            ₫{formatCurrently(purchaseItem.price * purchaseItem.buy_count)}
-                          </div>
-                          <button
-                            className='flex items-center justify-center col-span-1 hover:text-[#fb5533]'
-                            onClick={() => {
-                              handleDeleteCart([purchaseItem._id]);
-                            }}
-                          >
-                            Xóa
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                      );
+                    })}
+                  </>
+                ) : (
+                  <div className='border-b border-[#e5e7eb] p-6'>
+                    <div className='text-center'>Không có sản phẩm nào trong giỏ hàng</div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -252,6 +286,7 @@ export default function Cart() {
               <div className='flex items-center col-span-6'>
                 <input
                   type='checkbox'
+                  disabled={purchaseState.length === 0}
                   className=' accent-[#fb5533] w-4 h-4 hover:cursor-pointer flex-shrink-0'
                   checked={isAllChecked}
                   onChange={handleCheckedAll}
@@ -262,27 +297,41 @@ export default function Cart() {
                 <button
                   className='ml-4 hover:cursor-pointer hover:text-[#fb5533]'
                   onClick={() => {
-                    const idList = purchaseState.map((item) => {
-                      return item._id;
+                    const deleteList: string[] = [];
+                    checkedList.forEach((item) => {
+                      if (!item) return;
+                      deleteList.push(item._id);
                     });
-                    handleDeleteCart(idList);
+                    console.log(deleteList);
+                    handleDeleteCart(deleteList);
                   }}
                 >
                   Xóa
                 </button>
               </div>
-              <div className='flex items-center justify-end col-span-6'>
-                <span className='mr-4 '>Tổng cộng ({checkedList.length} Sản phẩm): </span>
-                <span className='text-2xl text-[#fb5533] mr-8'>₫{formatCurrently(12)}</span>
+              <div className='flex items-center justify-end col-span-6 gap-2'>
+                <div className='flex flex-col items-end justify-center gap-2 mr-8'>
+                  <div>
+                    <span className=''>Tổng cộng ({checkedList.length} Sản phẩm): </span>
+                    <span className='text-2xl text-[#fb5533] '>₫{formatCurrently(sumOfCheckedList)}</span>
+                  </div>
+                  <div className='flex items-center gap-2 text-lg text-gray-500'>
+                    <span>Tiết kiệm:</span>
+                    <span className='text-lg'>₫{formatCurrently(sumDiscount)}</span>
+                  </div>
+                </div>
                 <Button
                   handleSubmit={() => {
-                    if (checkedList.length === 0 || isMutating) {
-                      toast.error('Vui lòng chọn sản phẩm để mua');
-                      return;
-                    }
-                    useMutationBuyCart.mutate(checkedList as { product_id: string; buy_count: number }[]);
+                    const buyList = checkedList.map((item) => {
+                      if (!item) return null;
+                      return {
+                        product_id: item.product._id,
+                        buy_count: item.buy_count
+                      };
+                    });
+                    useMutationBuyProduct.mutate(buyList as { product_id: string; buy_count: number }[]);
                   }}
-                  className='h-full bg-[#ee4d2d] px-12 py-4  rounded-sm shadow-sm capitalize text-white hover:opacity-90'
+                  className={`h-full bg-[#ee4d2d] px-12 py-4  rounded-sm shadow-sm capitalize text-white  ${checkedList.length === 0 ? 'opacity-50 pointer-events-none ' : ' hover:opacity-90'}`}
                   content='Mua hàng'
                 />
               </div>
