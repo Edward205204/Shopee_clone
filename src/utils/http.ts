@@ -18,7 +18,7 @@ class Http {
     });
 
     this.instance.interceptors.request.use((config) => {
-      this.accessToken = getAccessTokenFromLS(); // lấy lại token từ localStorage
+      // this.accessToken = getAccessTokenFromLS(); // lấy lại token từ localStorage
       if (this.accessToken && config.headers) {
         config.headers.Authorization = this.accessToken;
         return config;
@@ -43,12 +43,8 @@ class Http {
           const toastId = 'authError';
           toast.error(message, { toastId });
 
-          // Handle 401 Unauthorized error -> thì đăng xuất
           if (error.response?.status === HttpStatusCode.Unauthorized) {
             removeLocalStorage();
-            setTimeout(() => {
-              window.location.href = path.login;
-            }, 2000);
           }
         }
         return Promise.reject(error);

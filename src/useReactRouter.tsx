@@ -11,6 +11,7 @@ import { AppContext } from './contexts/app.context';
 import path from './constants/path';
 import ProductDetail from './Pages/ProductDetail';
 import Cart from './Pages/Cart';
+import CartLayout from './Layout/CartLayout';
 
 export default function useReactRouter() {
   const { isAuthenticated } = useContext(AppContext);
@@ -72,9 +73,9 @@ export default function useReactRouter() {
         {
           path: path.cart,
           element: (
-            <MainLayout>
+            <CartLayout>
               <Cart />
-            </MainLayout>
+            </CartLayout>
           )
         },
         {

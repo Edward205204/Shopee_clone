@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { ProductApi } from '../../APIs/product.api';
 import Rating from '../../components/Rating';
 import { formatCurrently, formatSocialStyle, getIdFromNameId } from '../../utils/utils';
@@ -11,6 +11,7 @@ import { PurchasesApi } from '../../APIs/purchases.api';
 import { useQueryClient } from '@tanstack/react-query';
 import { purchasesStatus } from '../../constants/purchasesStatus';
 import { toast } from 'react-toastify';
+import path from '../../constants/path';
 
 export default function ProductDetail() {
   const queryClient = useQueryClient();
@@ -20,6 +21,7 @@ export default function ProductDetail() {
   const [currentImage, setCurrentImage] = useState([0, 5]);
   const [currentCategory, setCurrentCategory] = useState([0, 5]);
   const [quantity, setQuantity] = useState<string>('1');
+  const navigate = useNavigate();
 
   const imageRef = useRef<HTMLImageElement>(null);
 
@@ -36,12 +38,6 @@ export default function ProductDetail() {
     }
   });
 
-  const useMutationBuyProduct = useMutation({
-    mutationFn: (body: { product_id: string; buy_count: number }[]) => PurchasesApi.buyPurchases(body),
-    onSuccess: (body) => {
-      toast.success(body.data.message);
-    }
-  });
   const product = productResponse?.data.data;
 
   const { data: categoryResponse } = useQuery({
@@ -84,16 +80,14 @@ export default function ProductDetail() {
     }
   };
 
-  const handleBuyProduct = () => {
+  const handleBuyProduct = async () => {
     if (!product) return;
-    const body = [
-      {
-        product_id: product._id,
-        buy_count: Number(quantity) || 1
-      }
-    ];
-
-    useMutationBuyProduct.mutate(body);
+    const buyNowState = await useMutationPurchase.mutateAsync({
+      product_id: product._id,
+      buy_count: Number(quantity) || 1
+    });
+    if (!buyNowState) return;
+    navigate(path.cart, { state: buyNowState.data.data });
   };
   const arrayImage = useMemo(() => {
     return product ? product.images.slice(...currentImage) : [];

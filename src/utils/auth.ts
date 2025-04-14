@@ -1,3 +1,5 @@
+export const LocalStorageEventTarget = new EventTarget();
+
 export function setAccessTokenToLS(access: string) {
   return localStorage.setItem('access_token', access);
 }
@@ -9,6 +11,8 @@ export function getAccessTokenFromLS() {
 export function removeLocalStorage() {
   // localStorage.removeItem('access_token');
   localStorage.clear(); // -> xóa tất cả localStorage
+  const clearEvent = new Event('clearLS');
+  LocalStorageEventTarget.dispatchEvent(clearEvent);
 }
 
 export function setProfileToLS(profile: object) {

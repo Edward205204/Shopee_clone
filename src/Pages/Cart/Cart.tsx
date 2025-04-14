@@ -4,26 +4,28 @@ import { PurchasesApi } from '../../APIs/purchases.api';
 import { formatCurrently } from '../../utils/utils';
 import QuantityController from '../../components/QuantityController';
 import Button from '../../components/Button';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo } from 'react';
 import { Purchases } from '../../types/purchases';
 import { produce } from 'immer';
 import { toast } from 'react-toastify';
-
-interface PurchasesState extends Purchases {
-  disabled: boolean;
-  checked: boolean;
-}
+import { useLocation } from 'react-router';
+import { AppContext } from '../../contexts/app.context';
+import { isEqual, keyBy } from 'lodash';
+// import { useLocation } from 'react-router';
 
 export default function Cart() {
   // Dùng useIsMutating để kiểm tra xem có mutation nào đang diễn ra hay không
   const isMutating = useIsMutating();
+  const location = useLocation();
+  const chosenPurchaseIdFromLocation = (location.state as Purchases | null)?._id;
 
   const queryClient = useQueryClient();
   const { data: purchasesRes } = useQuery({
     queryKey: ['purchaseList', purchasesStatus.inCart],
     queryFn: () => PurchasesApi.getPurchases({ status: purchasesStatus.inCart })
   });
-  const [purchaseState, setPurchaseState] = useState<PurchasesState[]>([]);
+
+  const { purchaseState, setPurchaseState } = useContext(AppContext);
 
   const useMutationCart = useMutation({
     mutationFn: (body: { product_id: string; buy_count: number }) => PurchasesApi.updatePurchases(body),
@@ -49,26 +51,29 @@ export default function Cart() {
 
   const purchases = purchasesRes?.data.data;
 
+  // hiện tại mình có vòng lặp duyệt qua tạo mới purchaseState
   useEffect(() => {
-    /**
-   *  Tạo Map mới từ danh sách sản phẩm trước đó
-        key là id của mỗi item,và value là item đó
-        duyệt qua purchases được fetch lại, kiểm tra item cũ đã có chưa bằng cách get(id của purchase mới) vào Map mới được tạo bằng id
-        nếu đã có trong Map tức có đc checked ròi thì không cần tạo lại checked nữa
-        nếu chưa có thì checked = false disabled = false
-   */
-    if (purchases) {
-      setPurchaseState((prev) => {
-        const prevPurchaseState = new Map(prev.map((p) => [p._id, p]));
-        return purchases.map((item) => {
-          const oldItem = prevPurchaseState.get(item._id);
-          return oldItem
-            ? { ...item, checked: oldItem.checked, disabled: false }
-            : { ...item, checked: false, disabled: false };
-        });
+    setPurchaseState((prev) => {
+      if (!purchases) return [];
+      const purchaseStateObject = keyBy(prev, '_id');
+
+      const next = purchases.map((item) => {
+        const isChosenPurchaseFromLocation = chosenPurchaseIdFromLocation === item._id;
+        return {
+          ...item,
+          disabled: false,
+          checked: isChosenPurchaseFromLocation || Boolean(purchaseStateObject[item._id]?.checked)
+        };
       });
-    }
-  }, [purchases]);
+      return isEqual(next, prev) ? prev : next;
+    });
+  }, [purchases, chosenPurchaseIdFromLocation, purchaseState, setPurchaseState]);
+
+  useEffect(() => {
+    return () => {
+      history.replaceState(null, '');
+    };
+  }, []);
 
   const handleChecked = (e: React.ChangeEvent<HTMLInputElement>, itemIndex: number) => {
     const { checked } = e.target;
@@ -184,6 +189,8 @@ export default function Cart() {
                     <div className='flex items-center'>
                       <input
                         type='checkbox'
+                        name='all'
+                        id='all'
                         className={` accent-[#fb5533] w-4 h-4 hover:cursor-pointer ${purchaseState.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
                         onChange={handleCheckedAll}
                         checked={isAllChecked}
@@ -211,6 +218,8 @@ export default function Cart() {
                             <div className='col-span-6'>
                               <div className='flex items-center'>
                                 <input
+                                  name='product'
+                                  id={purchaseItem._id}
                                   disabled={purchaseState.length === 0}
                                   type='checkbox'
                                   className='accent-[#fb5533] w-4 h-4 flex-shrink-0 hover:cursor-pointer $'
@@ -285,6 +294,8 @@ export default function Cart() {
             <div className='grid grid-cols-12'>
               <div className='flex items-center col-span-6'>
                 <input
+                  name='all-button'
+                  id='all-button'
                   type='checkbox'
                   disabled={purchaseState.length === 0}
                   className=' accent-[#fb5533] w-4 h-4 hover:cursor-pointer flex-shrink-0'
@@ -302,7 +313,6 @@ export default function Cart() {
                       if (!item) return;
                       deleteList.push(item._id);
                     });
-                    console.log(deleteList);
                     handleDeleteCart(deleteList);
                   }}
                 >

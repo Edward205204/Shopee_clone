@@ -1,4 +1,4 @@
-import { forwardRef, useState } from 'react';
+import { forwardRef, useId, useState } from 'react';
 import { RegisterOptions } from 'react-hook-form';
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   rules?: RegisterOptions;
@@ -15,7 +15,7 @@ const InputNumber = forwardRef<HTMLInputElement, InputProps>(function InputNumbe
   ref
 ) {
   const [localValue, setLocalValue] = useState<string>(value);
-
+  const id = useId();
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     if (/^[0-9]*$/.test(value) || value === '') {
@@ -26,6 +26,8 @@ const InputNumber = forwardRef<HTMLInputElement, InputProps>(function InputNumbe
   return (
     <div className={className}>
       <input
+        id={id}
+        name={id}
         onChange={handleChange}
         className={`${classNameInput} ${disableStyle ? disableStyle : ''}`}
         type={type}
