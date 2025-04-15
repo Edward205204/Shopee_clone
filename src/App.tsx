@@ -21,6 +21,12 @@ function App() {
     LocalStorageEventTarget.addEventListener('clearLS', () => {
       reset();
     });
+
+    return () => {
+      LocalStorageEventTarget.removeEventListener('clearLS', () => {
+        reset();
+      });
+    };
   }, [reset]);
 
   const element = useReactRouter();

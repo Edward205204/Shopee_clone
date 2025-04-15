@@ -5,13 +5,16 @@ import { Navigate, Outlet, useRoutes } from 'react-router';
 import ErrorPage from './Pages/ErrorPage';
 import RegisterLayout from './Layout/RegisterLayout';
 import MainLayout from './Layout/MainLayout';
-import Profile from './Pages/Profile';
+import Profile from './Pages/User/Page/Profile';
 import { useContext } from 'react';
 import { AppContext } from './contexts/app.context';
 import path from './constants/path';
 import ProductDetail from './Pages/ProductDetail';
 import Cart from './Pages/Cart';
 import CartLayout from './Layout/CartLayout';
+import UserLayout from './Pages/User/Layout/UserLayout';
+import ChangePassword from './Pages/User/Page/ChangePassword';
+import HistoryPurchase from './Pages/User/Page/HistoryPurchase';
 
 export default function useReactRouter() {
   const { isAuthenticated } = useContext(AppContext);
@@ -23,10 +26,6 @@ export default function useReactRouter() {
   }
 
   const routeElements = useRoutes([
-    {
-      path: '/*',
-      element: <ErrorPage />
-    },
     {
       path: path.home,
       index: true,
@@ -63,14 +62,6 @@ export default function useReactRouter() {
       element: <ProtectedRoute />,
       children: [
         {
-          path: path.profile,
-          element: (
-            <MainLayout>
-              <Profile />
-            </MainLayout>
-          )
-        },
-        {
           path: path.cart,
           element: (
             <CartLayout>
@@ -85,8 +76,34 @@ export default function useReactRouter() {
               <ProductDetail />
             </MainLayout>
           )
+        },
+        {
+          path: path.user,
+          element: (
+            <MainLayout>
+              <UserLayout />
+            </MainLayout>
+          ),
+          children: [
+            {
+              path: path.profile,
+              element: <Profile />
+            },
+            {
+              path: path.change_password,
+              element: <ChangePassword />
+            },
+            {
+              path: path.purchase_history,
+              element: <HistoryPurchase />
+            }
+          ]
         }
       ]
+    },
+    {
+      path: '/*',
+      element: <ErrorPage />
     }
   ]);
   return routeElements;
