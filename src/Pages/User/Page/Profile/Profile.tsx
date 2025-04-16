@@ -6,10 +6,10 @@ export default function Profile() {
     <div className='w-full'>
       <div className='w-full px-10 py-6 bg-white rounded-lg shadow-sm '>
         <div className='px-2 py-4 border-b border-gray-500'>
-          <div className='text-lg text-gray-900 capitalize'>Hồ sơ của tôi</div>
-          <div className='text-sm text-gray-900'>Quản lý thông tin hồ sơ để bảo mật tài khoản</div>
+          <div className='pb-2 text-lg text-gray-900 capitalize'>Hồ sơ của tôi</div>
+          <div className='pb-4 text-sm text-gray-600'>Quản lý thông tin hồ sơ để bảo mật tài khoản</div>
         </div>
-        <div className='flex items-start px-2 py-12'>
+        <form className='flex items-start px-2 py-12'>
           <div className='w-full px-6 py-6 sm:w-[70%] pr-16 flex-shrink-0'>
             <div className='flex items-center gap-6 pb-12 text-gray-600'>
               <div className=' truncate capitalize sm:w-[20%] text-right'>Email:</div>
@@ -142,7 +142,7 @@ export default function Profile() {
           </div>
           <div className='w-full h-auto px-4 py-4 border-l border-gray-200'>
             <div className='flex flex-col items-center justify-center px-12 py-8'>
-              <img src='../../../../../public/vite.svg' alt='avatar' className='w-24 h-24' />
+              <img src='./vite.svg' alt='avatar' className='w-24 h-24' />
               <Button content='Chọn ảnh' className='px-5 py-3 mt-6 border border-gray-300' />
               <input className='hidden' type='file' accept='.jpg,.jpeg,.png' />
               <div className='mt-6 text-center'>
@@ -151,7 +151,7 @@ export default function Profile() {
               </div>
             </div>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );

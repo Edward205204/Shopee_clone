@@ -5,7 +5,7 @@ import path from 'path';
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  server: { port: 3000 }, // đổi port thành `3000`
+  server: { port: 3000, host: true, allowedHosts: true }, // đổi port thành `3000`
   css: {
     devSourcemap: true
   },
@@ -14,5 +14,6 @@ export default defineConfig({
       '~': path.resolve(__dirname, './src')
     }
   }
+
   //, base: '/Shopee_clone/'
 });
