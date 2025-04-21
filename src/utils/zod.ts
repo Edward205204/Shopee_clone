@@ -65,6 +65,19 @@ export const inputPriceSchema = z
     }
   });
 
+export const userProfileSchema = z.object({
+  address: z.string().max(160, 'Max length is 160 characters'),
+  phone: z.string().max(20, 'Max length is 20 characters'),
+  date_of_birth: z.date().max(new Date(), 'Hãy chọn một ngày trong quá khứ'),
+  name: z.string().max(160, 'Max length is 160 characters'),
+  avatar: z.string().max(1000, 'Max length is 1000 characters'),
+  password: baseSchema.shape.password,
+  new_password: baseSchema.shape.password,
+  confirm_password: baseSchema.shape.confirm_password
+});
+
+export type TypUserProfileSchema = z.infer<typeof userProfileSchema>;
+
 export type typeOfInputPrice = z.infer<typeof inputPriceSchema>;
 
 export const loginSchema = baseSchema.pick({ email: true, password: true });

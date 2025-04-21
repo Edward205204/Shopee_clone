@@ -2,12 +2,12 @@ import ResponseAPI from '../types/ultils';
 import User from '../types/user';
 import http from '../utils/http';
 
-interface UserResponse extends Omit<User, '_id' | '__v' | 'createdAt' | 'updatedAt' | 'email' | 'roles'> {
+interface UserResponse extends Pick<User, 'name' | 'phone' | 'address' | 'date_of_birth' | 'avatar'> {
   password?: string;
   new_password?: string;
 }
 
-export const PurchasesApi = {
+export const profileApi = {
   getProfile: () => {
     return http.get<ResponseAPI<User>>('me');
   },
