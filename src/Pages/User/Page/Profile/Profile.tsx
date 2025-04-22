@@ -7,7 +7,7 @@ import InputNumber from '../../../../components/InputNumber';
 import SelectDay from '../../components/SelectDay';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { profileApi } from '../../../../APIs/profile.api';
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 
 type FormData = Pick<TypUserProfileSchema, 'name' | 'address' | 'phone' | 'date_of_birth' | 'avatar'>;
@@ -26,6 +26,7 @@ export default function Profile() {
     setValue,
     getValues,
     handleSubmit,
+    watch,
     formState: { errors },
     register
   } = useForm<FormData>({
@@ -39,6 +40,9 @@ export default function Profile() {
     }
   });
 
+  const [file, setFile] = useState<File>();
+  const inputImg = useRef<HTMLInputElement>(null);
+
   const { data: profileRes, refetch } = useQuery({
     queryKey: ['profile'],
     queryFn: profileApi.getProfile
@@ -47,7 +51,6 @@ export default function Profile() {
   const useMutationUpdateProfile = useMutation({
     mutationFn: (body: FormData) => profileApi.updateProfile(body),
     onSuccess: (data) => {
-      console.log('Update profile success', data);
       refetch();
       toast.success(data.data.message);
     },
@@ -57,6 +60,7 @@ export default function Profile() {
   });
 
   const profileData = profileRes?.data.data;
+  const previewImage = file ? URL.createObjectURL(file) : '';
 
   useEffect(() => {
     if (profileData) {
@@ -76,6 +80,20 @@ export default function Profile() {
 
   const onSubmit = (data: FormData) => {
     useMutationUpdateProfile.mutate({ ...data });
+  };
+  const uploadFile = () => {
+    if (inputImg.current) {
+      inputImg.current.click();
+    }
+  };
+
+  const avatar = watch('avatar');
+
+  const handlePickImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFile(file);
+    }
   };
 
   return (
@@ -187,9 +205,20 @@ export default function Profile() {
           </div>
           <div className='w-full h-auto px-4 py-4 border-l border-gray-200'>
             <div className='flex flex-col items-center justify-center px-12 py-8'>
-              <img src='./vite.svg' alt='avatar' className='w-24 h-24' />
-              <Button content='Chọn ảnh' className='px-5 py-3 mt-6 border border-gray-300' type='button' />
-              <input className='hidden' type='file' accept='.jpg,.jpeg,.png' />
+              <img src={previewImage || avatar} alt='avatar' className='w-24 h-24' />
+              <Button
+                content='Chọn ảnh'
+                className='px-5 py-3 mt-6 border border-gray-300'
+                type='button'
+                onClick={uploadFile}
+              />
+              <input
+                className='hidden'
+                type='file'
+                accept='.jpg,.jpeg,.png'
+                onChange={handlePickImage}
+                ref={inputImg}
+              />
               <div className='mt-6 text-center'>
                 <div className='text-xs text-gray-400 '>Dụng lượng file tối đa 1 MB</div>
                 <div className='mt-2 text-xs text-gray-400'>Định dạng:.JPEG, .PNG</div>
