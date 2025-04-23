@@ -1,4 +1,4 @@
-import { Link } from 'react-router';
+import { NavLink } from 'react-router';
 import path from '../../../../constants/path';
 import { useContext } from 'react';
 import { AppContext } from '../../../../contexts/app.context';
@@ -14,7 +14,9 @@ export default function SideNav() {
           <img src={getAvatarUrl(profile?.avatar)} alt='' className='object-cover w-full h-full' />
         </div>
         <div className='ml-4'>
-          <div className='text-base font-semibold text-gray-700 truncate'>accessToken</div>
+          <div className='text-base font-semibold text-gray-700 truncate'>
+            {profile?.name ? profile.name : profile?.email}
+          </div>
           <div className='flex items-center gap-2'>
             <div>
               <svg
@@ -36,15 +38,30 @@ export default function SideNav() {
         </div>
       </div>
       <div className='mt-12'>
-        <Link to={path.profile} className='block mb-8 text-[#ee4d2d]'>
+        <NavLink
+          to={path.profile}
+          className={({ isActive }: { isActive: boolean }) =>
+            `block mb-8 ${isActive ? 'text-[#ee4d2d]' : 'text-gray-500'}`
+          }
+        >
           Tài khoản của tôi
-        </Link>
-        <Link to={path.change_password} className='block mb-8 text-gray-500'>
+        </NavLink>
+        <NavLink
+          to={path.change_password}
+          className={({ isActive }: { isActive: boolean }) =>
+            `${isActive ? ' text-[#ee4d2d]' : 'text-gray-500'} block mb-8 `
+          }
+        >
           Đổi mật khẩu
-        </Link>
-        <Link to={path.purchase_history} className='block mb-8 text-gray-500'>
+        </NavLink>
+        <NavLink
+          to={path.purchase_history}
+          className={({ isActive }: { isActive: boolean }) =>
+            `block mb-8 ${isActive ? 'text-[#ee4d2d]' : 'text-gray-500'}`
+          }
+        >
           Đơn mua
-        </Link>
+        </NavLink>
       </div>
     </div>
   );

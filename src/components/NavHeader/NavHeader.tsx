@@ -197,7 +197,7 @@ export default function NavHeader() {
           </PopOver>
           {isAuthenticated && (
             <PopOver
-              className='flex items-center ml-3 cursor-pointer group'
+              // className='flex items-center ml-3 cursor-pointer group'
               popOverClass='text-sm text-black bg-white shadow-sm cursor-pointer '
               renderProps={
                 <>
@@ -207,7 +207,10 @@ export default function NavHeader() {
                   >
                     Tài khoản của tôi
                   </button>
-                  <button className='block w-full p-2 mb-2 text-left hover:text-teal-500 hover:bg-slate-200'>
+                  <button
+                    className='block w-full p-2 mb-2 text-left hover:text-teal-500 hover:bg-slate-200'
+                    onClick={() => navigate(path.purchase_history)}
+                  >
                     Đơn mua
                   </button>
                   <button
@@ -219,8 +222,12 @@ export default function NavHeader() {
                 </>
               }
             >
-              <img className='w-6 h-6 rounded-full' src={getAvatarUrl(profile?.avatar)} alt='user_avatar' />
-              <div className='ml-2 text-sm text-white group-hover:opacity-80'>{profile?.email}</div>
+              <Link to={path.profile} className='flex items-center ml-3 cursor-pointer group'>
+                <img className='w-6 h-6 rounded-full' src={getAvatarUrl(profile?.avatar)} alt='user_avatar' />
+                <div className='ml-2 text-sm text-white group-hover:opacity-80'>
+                  {profile?.name ? profile.name : profile?.email}
+                </div>
+              </Link>
             </PopOver>
           )}
           {!isAuthenticated && (

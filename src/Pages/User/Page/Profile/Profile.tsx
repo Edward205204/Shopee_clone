@@ -7,20 +7,20 @@ import InputNumber from '../../../../components/InputNumber';
 import SelectDay from '../../components/SelectDay';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { profileApi } from '../../../../APIs/profile.api';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { getAvatarUrl, isUnprocessableEntityError } from '../../../../utils/utils';
 import { setProfileToLS } from '../../../../utils/auth';
 import { AppContext } from '../../../../contexts/app.context';
 import ResponseAPI from '../../../../types/ultils';
-import { isInputElement } from '../../../../utils/utils';
+import InputFile from '../../../../components/InputFile';
 
 type FormData = Pick<TypUserProfileSchema, 'name' | 'address' | 'phone' | 'date_of_birth' | 'avatar'>;
 type FormDataUpdate = Pick<TypUserProfileSchema, 'name' | 'address' | 'phone' | 'avatar'> & {
   date_of_birth: string;
 };
 
-const MAX_FILE_SIZE = 1048576; // 1MB ===  1048576 bytes
+// 1MB ===  1048576 bytes
 
 // Cần có avatar và previewImage để hiển thị ảnh đại diện vì khi chưa có ảnh đại diện thì không thể lấy được đường dẫn
 // của ảnh đại diện từ api nên cần phải có avatar để hiển thị ảnh đại diện đồng thời phải thực hiện thao tác sử lý để
@@ -58,7 +58,7 @@ export default function Profile() {
   });
 
   const [file, setFile] = useState<File>();
-  const inputImg = useRef<HTMLInputElement>(null);
+
   const { setProfile } = useContext(AppContext);
 
   const { data: profileRes, refetch } = useQuery({
@@ -93,28 +93,9 @@ export default function Profile() {
     }
   }, [profileData, setValue, getValues]);
 
-  // const onSubmit = handleSubmit(async (data) => {
-  //   let avatarName = avatar;
-  //   if (file) {
-  //     const formData = new FormData();
-  //     formData.append('avatar', file);
-  //     const uploadRes = await updateProfileMutation.mutateAsync(formData);
-  //     avatarName = uploadRes.data.data;
-  //     setValue('avatar', avatarName);
-  //     refetch();
-  //   }
-
-  //   const res = await updateProfileMutation.mutateAsync({
-  //     ...data,
-  //     date_of_birth: data.date_of_birth?.toISOString(),
-  //     avatar: avatarName
-  //   });
-  //   setProfileToLS(res.data.data);
-  //   refetch();
-  //   toast.success(res.data.message);
-
-  //   useMutationUpdateProfile.mutate({ ...data });
-  // });
+  const handleChange = (file: File) => {
+    setFile(file);
+  };
 
   const onSubmit = async (data: FormData) => {
     try {
@@ -150,27 +131,7 @@ export default function Profile() {
     }
   };
 
-  const resetFileRef = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
-    if (isInputElement(e.target)) {
-      e.target.value = '';
-    }
-  };
-
-  const uploadFile = () => {
-    if (inputImg.current) {
-      inputImg.current.click();
-    }
-  };
-
   const avatar = watch('avatar');
-
-  const handlePickImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > MAX_FILE_SIZE) return toast.error('Kích thước file không được lớn hơn 1MB');
-    if (!file.type.startsWith('image/')) return toast.error('File không đúng định dạng');
-    setFile(file);
-  };
 
   return (
     <div className='w-full'>
@@ -284,20 +245,7 @@ export default function Profile() {
               <div className='w-24 h-24 overflow-hidden rounded-full'>
                 <img src={previewImage || getAvatarUrl(avatar)} alt='avatar' className='w-full h-full' />
               </div>
-              <input
-                className='hidden'
-                type='file'
-                accept='.jpg,.jpeg,.png'
-                onChange={handlePickImage}
-                ref={inputImg}
-                onClick={resetFileRef}
-              />
-              <Button
-                content='Chọn ảnh'
-                className='px-5 py-3 mt-6 border border-gray-300'
-                type='button'
-                handleClick={uploadFile}
-              />
+              <InputFile onChange={handleChange} />
               <div className='mt-6 text-center'>
                 <div className='text-xs text-gray-400 '>Dụng lượng file tối đa 1 MB</div>
                 <div className='mt-2 text-xs text-gray-400'>Định dạng:.JPEG, .PNG</div>
