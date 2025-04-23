@@ -1,20 +1,13 @@
-import ProductList from './Pages/ProductList';
-import Register from './Pages/Register';
-import Login from './Pages/Login';
 import { Navigate, Outlet, useRoutes } from 'react-router';
 import ErrorPage from './Pages/ErrorPage';
 import RegisterLayout from './Layout/RegisterLayout';
 import MainLayout from './Layout/MainLayout';
-import Profile from './Pages/User/Page/Profile';
-import { useContext } from 'react';
+import { lazy, useContext, Suspense } from 'react';
 import { AppContext } from './contexts/app.context';
 import path from './constants/path';
-import ProductDetail from './Pages/ProductDetail';
-import Cart from './Pages/Cart';
+
 import CartLayout from './Layout/CartLayout';
 import UserLayout from './Pages/User/Layout/UserLayout';
-import ChangePassword from './Pages/User/Page/ChangePassword';
-import HistoryPurchase from './Pages/User/Page/HistoryPurchase';
 
 export default function useReactRouter() {
   const { isAuthenticated } = useContext(AppContext);
@@ -25,13 +18,24 @@ export default function useReactRouter() {
     return !isAuthenticated ? <Outlet /> : <Navigate to={path.home} />;
   }
 
+  const ProductList = lazy(() => import('./Pages/ProductList'));
+  const Register = lazy(() => import('./Pages/Register'));
+  const Login = lazy(() => import('./Pages/Login'));
+  const Profile = lazy(() => import('./Pages/User/Page/Profile'));
+  const ProductDetail = lazy(() => import('./Pages/ProductDetail'));
+  const Cart = lazy(() => import('./Pages/Cart'));
+  const ChangePassword = lazy(() => import('./Pages/User/Page/ChangePassword'));
+  const HistoryPurchase = lazy(() => import('./Pages/User/Page/HistoryPurchase'));
+
   const routeElements = useRoutes([
     {
       path: path.home,
       index: true,
       element: (
         <MainLayout>
-          <ProductList />
+          <Suspense fallback={<div className='flex items-center justify-center w-full h-screen'>Loading...</div>}>
+            <ProductList />
+          </Suspense>
         </MainLayout>
       )
     },
@@ -43,7 +47,9 @@ export default function useReactRouter() {
           path: path.login,
           element: (
             <RegisterLayout>
-              <Login />
+              <Suspense fallback={<div className='flex items-center justify-center w-full h-screen'>Loading...</div>}>
+                <Login />
+              </Suspense>
             </RegisterLayout>
           )
         },
@@ -51,7 +57,9 @@ export default function useReactRouter() {
           path: path.register,
           element: (
             <RegisterLayout>
-              <Register />
+              <Suspense fallback={<div className='flex items-center justify-center w-full h-screen'>Loading...</div>}>
+                <Register />
+              </Suspense>
             </RegisterLayout>
           )
         }
@@ -65,7 +73,9 @@ export default function useReactRouter() {
           path: path.cart,
           element: (
             <CartLayout>
-              <Cart />
+              <Suspense fallback={<div className='flex items-center justify-center w-full h-screen'>Loading...</div>}>
+                <Cart />
+              </Suspense>
             </CartLayout>
           )
         },
@@ -73,7 +83,9 @@ export default function useReactRouter() {
           path: path.productDetail,
           element: (
             <MainLayout>
-              <ProductDetail />
+              <Suspense fallback={<div className='flex items-center justify-center w-full h-screen'>Loading...</div>}>
+                <ProductDetail />
+              </Suspense>
             </MainLayout>
           )
         },
@@ -81,21 +93,35 @@ export default function useReactRouter() {
           path: path.user,
           element: (
             <MainLayout>
-              <UserLayout />
+              <Suspense fallback={<div className='flex items-center justify-center w-full h-screen'>Loading...</div>}>
+                <UserLayout />
+              </Suspense>
             </MainLayout>
           ),
           children: [
             {
               path: path.profile,
-              element: <Profile />
+              element: (
+                <Suspense fallback={<div className='flex items-center justify-center w-full h-screen'>Loading...</div>}>
+                  <Profile />
+                </Suspense>
+              )
             },
             {
               path: path.change_password,
-              element: <ChangePassword />
+              element: (
+                <Suspense fallback={<div className='flex items-center justify-center w-full h-screen'>Loading...</div>}>
+                  <ChangePassword />
+                </Suspense>
+              )
             },
             {
               path: path.purchase_history,
-              element: <HistoryPurchase />
+              element: (
+                <Suspense fallback={<div className='flex items-center justify-center w-full h-screen'>Loading...</div>}>
+                  <HistoryPurchase />
+                </Suspense>
+              )
             }
           ]
         }
