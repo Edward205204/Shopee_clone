@@ -7,10 +7,26 @@ import InputNumber from '../../../../components/InputNumber';
 import SelectDay from '../../components/SelectDay';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { profileApi } from '../../../../APIs/profile.api';
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
+import { getAvatarUrl, isUnprocessableEntityError } from '../../../../utils/utils';
+import { setProfileToLS } from '../../../../utils/auth';
+import { AppContext } from '../../../../contexts/app.context';
+import ResponseAPI from '../../../../types/ultils';
+import { isInputElement } from '../../../../utils/utils';
 
 type FormData = Pick<TypUserProfileSchema, 'name' | 'address' | 'phone' | 'date_of_birth' | 'avatar'>;
+type FormDataUpdate = Pick<TypUserProfileSchema, 'name' | 'address' | 'phone' | 'avatar'> & {
+  date_of_birth: string;
+};
+
+const MAX_FILE_SIZE = 1048576; // 1MB ===  1048576 bytes
+
+// Cần có avatar và previewImage để hiển thị ảnh đại diện vì khi chưa có ảnh đại diện thì không thể lấy được đường dẫn
+// của ảnh đại diện từ api nên cần phải có avatar để hiển thị ảnh đại diện đồng thời phải thực hiện thao tác sử lý để
+//  api ảnh có thẻ show lên giao diện. Còn previewImage nhận value từ file upload lên nhưng sau đó còn phải có thao tác URL.createObjectURL để show lên giao diện. => DÙ cuối cùng kết quả như nhau nhưng cả hai đều có thao tác thực hiện khác nhau nên cần phải có cả hai biến này
+// 1. avatar: là đường dẫn của ảnh đại diện từ api trả về(dù avatar dùng watch tracking được ảnh tải lên nhưng lại không có quá trình tạo URL.createObjectURL để hiển thị ảnh đại diện lên giao diện)
+// 2. previewImage: là đường dẫn của ảnh đại diện từ file upload lên
 
 const profileSchema = userProfileSchema.pick({
   name: true,
@@ -26,6 +42,7 @@ export default function Profile() {
     setValue,
     getValues,
     handleSubmit,
+    setError,
     watch,
     formState: { errors },
     register
@@ -42,6 +59,7 @@ export default function Profile() {
 
   const [file, setFile] = useState<File>();
   const inputImg = useRef<HTMLInputElement>(null);
+  const { setProfile } = useContext(AppContext);
 
   const { data: profileRes, refetch } = useQuery({
     queryKey: ['profile'],
@@ -49,14 +67,14 @@ export default function Profile() {
   });
 
   const useMutationUpdateProfile = useMutation({
-    mutationFn: (body: FormData) => profileApi.updateProfile(body),
-    onSuccess: (data) => {
-      refetch();
-      toast.success(data.data.message);
-    },
+    mutationFn: (body: FormData | FormDataUpdate) => profileApi.updateProfile(body),
     onError: (error) => {
       console.error('Update profile error', error);
     }
+  });
+
+  const uploadAvatarMutation = useMutation({
+    mutationFn: (formData: globalThis.FormData) => profileApi.uploadAvatar(formData)
   });
 
   const profileData = profileRes?.data.data;
@@ -71,16 +89,73 @@ export default function Profile() {
 
       if (profileData.date_of_birth) {
         setValue('date_of_birth', new Date(profileData.date_of_birth));
-        console.log(getValues('date_of_birth'));
       }
     }
   }, [profileData, setValue, getValues]);
 
-  console.log(profileData);
+  // const onSubmit = handleSubmit(async (data) => {
+  //   let avatarName = avatar;
+  //   if (file) {
+  //     const formData = new FormData();
+  //     formData.append('avatar', file);
+  //     const uploadRes = await updateProfileMutation.mutateAsync(formData);
+  //     avatarName = uploadRes.data.data;
+  //     setValue('avatar', avatarName);
+  //     refetch();
+  //   }
 
-  const onSubmit = (data: FormData) => {
-    useMutationUpdateProfile.mutate({ ...data });
+  //   const res = await updateProfileMutation.mutateAsync({
+  //     ...data,
+  //     date_of_birth: data.date_of_birth?.toISOString(),
+  //     avatar: avatarName
+  //   });
+  //   setProfileToLS(res.data.data);
+  //   refetch();
+  //   toast.success(res.data.message);
+
+  //   useMutationUpdateProfile.mutate({ ...data });
+  // });
+
+  const onSubmit = async (data: FormData) => {
+    try {
+      let avatarName = avatar;
+      if (file) {
+        const form = new FormData();
+        form.append('image', file);
+        const uploadRes = await uploadAvatarMutation.mutateAsync(form);
+        avatarName = uploadRes.data.data;
+        setValue('avatar', avatarName);
+      }
+      const res = await useMutationUpdateProfile.mutateAsync({
+        ...data,
+        date_of_birth: data.date_of_birth?.toISOString(),
+        avatar: avatarName
+      });
+      setProfile(res.data.data);
+      setProfileToLS(res.data.data);
+      refetch();
+      toast.success(res.data.message);
+    } catch (error) {
+      if (isUnprocessableEntityError<ResponseAPI<FormDataUpdate>>(error)) {
+        const formError = error.response?.data.data;
+        if (formError) {
+          Object.keys(formError).forEach((key) =>
+            setError(key as keyof FormDataUpdate, {
+              type: 'server',
+              message: formError[key as keyof FormDataUpdate]
+            })
+          );
+        }
+      }
+    }
   };
+
+  const resetFileRef = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
+    if (isInputElement(e.target)) {
+      e.target.value = '';
+    }
+  };
+
   const uploadFile = () => {
     if (inputImg.current) {
       inputImg.current.click();
@@ -91,9 +166,10 @@ export default function Profile() {
 
   const handlePickImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setFile(file);
-    }
+    if (!file) return;
+    if (file.size > MAX_FILE_SIZE) return toast.error('Kích thước file không được lớn hơn 1MB');
+    if (!file.type.startsWith('image/')) return toast.error('File không đúng định dạng');
+    setFile(file);
   };
 
   return (
@@ -205,19 +281,22 @@ export default function Profile() {
           </div>
           <div className='w-full h-auto px-4 py-4 border-l border-gray-200'>
             <div className='flex flex-col items-center justify-center px-12 py-8'>
-              <img src={previewImage || avatar} alt='avatar' className='w-24 h-24' />
-              <Button
-                content='Chọn ảnh'
-                className='px-5 py-3 mt-6 border border-gray-300'
-                type='button'
-                onClick={uploadFile}
-              />
+              <div className='w-24 h-24 overflow-hidden rounded-full'>
+                <img src={previewImage || getAvatarUrl(avatar)} alt='avatar' className='w-full h-full' />
+              </div>
               <input
                 className='hidden'
                 type='file'
                 accept='.jpg,.jpeg,.png'
                 onChange={handlePickImage}
                 ref={inputImg}
+                onClick={resetFileRef}
+              />
+              <Button
+                content='Chọn ảnh'
+                className='px-5 py-3 mt-6 border border-gray-300'
+                type='button'
+                handleClick={uploadFile}
               />
               <div className='mt-6 text-center'>
                 <div className='text-xs text-gray-400 '>Dụng lượng file tối đa 1 MB</div>

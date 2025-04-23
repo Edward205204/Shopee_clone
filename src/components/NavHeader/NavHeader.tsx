@@ -7,6 +7,7 @@ import path from '../../constants/path';
 import { authApi } from '../../APIs/userRegister.api';
 import { purchasesStatus } from '../../constants/purchasesStatus';
 import PopOver from '../PopOver';
+import { getAvatarUrl } from '../../utils/utils';
 
 export default function NavHeader() {
   const queryClient = useQueryClient();
@@ -218,11 +219,7 @@ export default function NavHeader() {
                 </>
               }
             >
-              <img
-                className='w-6 h-6 rounded-full'
-                src='https://down-vn.img.susercontent.com/file/vn-11134226-7ras8-m5wba4nnbbjq53_tn'
-                alt='user_avatar'
-              />
+              <img className='w-6 h-6 rounded-full' src={getAvatarUrl(profile?.avatar)} alt='user_avatar' />
               <div className='ml-2 text-sm text-white group-hover:opacity-80'>{profile?.email}</div>
             </PopOver>
           )}

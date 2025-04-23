@@ -1,16 +1,17 @@
 import { Link } from 'react-router';
 import path from '../../../../constants/path';
+import { useContext } from 'react';
+import { AppContext } from '../../../../contexts/app.context';
+import { getAvatarUrl } from '../../../../utils/utils';
 
 export default function SideNav() {
+  const { profile } = useContext(AppContext);
+
   return (
     <div>
       <div className='flex flex-wrap items-center justify-center px-2 py-6 pb-8 border-b border-gray-300'>
         <div className='w-12 h-12 overflow-hidden border border-gray-500 rounded-full '>
-          <img
-            src='https://down-vn.img.susercontent.com/file/vn-11134226-7ras8-m5wba4nnbbjq53_tn'
-            alt=''
-            className='object-cover w-full h-full'
-          />
+          <img src={getAvatarUrl(profile?.avatar)} alt='' className='object-cover w-full h-full' />
         </div>
         <div className='ml-4'>
           <div className='text-base font-semibold text-gray-700 truncate'>accessToken</div>

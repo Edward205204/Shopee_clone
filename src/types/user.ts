@@ -6,7 +6,7 @@ interface User {
   name: string;
   address: string;
   phone: string;
-  date_of_birth?: Date; // ISO 8601 format
+  date_of_birth?: Date | string; // ISO 8601 format
   avatar?: string;
   createdAt: string;
   updatedAt: string;
