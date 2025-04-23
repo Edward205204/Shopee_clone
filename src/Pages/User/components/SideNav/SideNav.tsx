@@ -1,8 +1,10 @@
-import { NavLink } from 'react-router';
+import { createSearchParams, NavLink } from 'react-router';
 import path from '../../../../constants/path';
 import { useContext } from 'react';
 import { AppContext } from '../../../../contexts/app.context';
 import { getAvatarUrl } from '../../../../utils/utils';
+import { useQueryConfig } from '../../../../hooks/useQueryConfig';
+import { purchasesStatus } from '../../../../constants/purchasesStatus';
 
 export default function SideNav() {
   const { profile } = useContext(AppContext);
@@ -55,7 +57,10 @@ export default function SideNav() {
           Đổi mật khẩu
         </NavLink>
         <NavLink
-          to={path.purchase_history}
+          to={{
+            pathname: path.purchase_history,
+            search: createSearchParams({ ...useQueryConfig, status: purchasesStatus.inCart }).toString()
+          }}
           className={({ isActive }: { isActive: boolean }) =>
             `block mb-8 ${isActive ? 'text-[#ee4d2d]' : 'text-gray-500'}`
           }
