@@ -15,5 +15,5 @@ export default defineConfig({
     }
   }
 
-  //, base: '/Shopee_clone/'
+  // base: '/Shopee_clone/'
 });

@@ -102,7 +102,7 @@ export default function useReactRouter() {
       ]
     },
     {
-      path: '/*',
+      path: '*',
       element: <ErrorPage />
     }
   ]);

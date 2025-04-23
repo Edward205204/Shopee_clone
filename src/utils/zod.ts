@@ -70,11 +70,26 @@ export const userProfileSchema = z.object({
   phone: z.string().max(20, 'Max length is 20 characters'),
   date_of_birth: z.date().max(new Date(), 'Hãy chọn một ngày trong quá khứ'),
   name: z.string().max(160, 'Max length is 160 characters'),
-  avatar: z.string().max(1000, 'Max length is 1000 characters'),
-  password: baseSchema.shape.password,
-  new_password: baseSchema.shape.password,
-  confirm_password: baseSchema.shape.confirm_password
+  avatar: z.string().max(1000, 'Max length is 1000 characters')
 });
+
+export const changePasswordSchema = z
+  .object({
+    password: baseSchema.shape.password,
+    new_password: baseSchema.shape.password,
+    confirm_password: baseSchema.shape.confirm_password
+  })
+  .superRefine((data, ctx) => {
+    if (data.new_password !== data.confirm_password) {
+      ctx.addIssue({
+        path: ['confirm_password'],
+        message: 'Mật khẩu mới không khớp',
+        code: z.ZodIssueCode.custom
+      });
+    }
+  });
+
+export type TypeChangePasswordSchema = z.infer<typeof changePasswordSchema>;
 
 export type TypUserProfileSchema = z.infer<typeof userProfileSchema>;
 
