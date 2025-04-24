@@ -10,6 +10,7 @@ import { createSearchParams, useNavigate } from 'react-router';
 import path from '../../constants/path';
 import { useEffect } from 'react';
 import { useQueryConfig } from '../../hooks/useQueryConfig';
+import { Helmet } from 'react-helmet-async';
 
 export type QueryConfig = {
   [key in keyof ProductConfig]?: string;
@@ -17,22 +18,6 @@ export type QueryConfig = {
 
 export default function ProductList() {
   const navigate = useNavigate();
-  // const searchParam = useSearchParam();
-  // const queryConfig: QueryConfig = omitBy(
-  //   {
-  //     page: searchParam.page || '1',
-  //     limit: searchParam.limit,
-  //     order: searchParam.order,
-  //     sort_by: searchParam.sort_by,
-  //     category: searchParam.category,
-  //     exclude: searchParam.exclude,
-  //     rating_filter: searchParam.rating_filter,
-  //     price_max: searchParam.price_max,
-  //     price_min: searchParam.price_min,
-  //     name: searchParam.name
-  //   },
-  //   isUndefined
-  // );
   const queryConfig = useQueryConfig();
 
   const { data: dataProducts } = useQuery({
@@ -58,6 +43,10 @@ export default function ProductList() {
 
   return (
     <div className='py-2 pb-11 border-b-[#ee4d2d] border-b-[2px] bg-[#f5f5f5]'>
+      <Helmet>
+        <title>Danh Sách Sản Phẩm | Shopee Clone</title>
+        <meta name='description' content='Danh sách các sản phẩm' />
+      </Helmet>
       <div className='container'>
         {dataProducts && (
           <div className='grid grid-cols-12 gap-4'>

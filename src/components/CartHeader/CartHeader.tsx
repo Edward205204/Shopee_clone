@@ -2,7 +2,7 @@ import { createSearchParams, Link, useNavigate } from 'react-router';
 import NavHeader from '../NavHeader';
 import path from '../../constants/path';
 import { useQueryConfig } from '../../hooks/useQueryConfig';
-import { omit } from 'lodash';
+import omit from 'lodash/omit';
 import useInputSearch from '../../hooks/useInputSearch';
 
 export default function CartHeader() {

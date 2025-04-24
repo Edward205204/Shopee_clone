@@ -6,13 +6,14 @@ import { useMutation } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router';
 import Input from '../../components/Input';
 import { authApi } from '../../APIs/userRegister.api';
-import { omit } from 'lodash';
+import omit from 'lodash/omit';
 import { useContext, useEffect } from 'react';
 import { isUnprocessableEntityError } from '../../utils/utils';
 import ResponseAPI from '../../types/ultils';
 import { AppContext } from '../../contexts/app.context';
 import Button from '../../components/Button';
 import path from '../../constants/path';
+import { Helmet } from 'react-helmet-async';
 
 export type InputForm = TypeRegSchema;
 export default function Register() {
@@ -68,6 +69,10 @@ export default function Register() {
 
   return (
     <>
+      <Helmet>
+        <title>Đăng ký</title>
+        <meta name='description' content='Trang thông tin đăng ký' />
+      </Helmet>
       <div className='bg-[#ee4d2d]' onSubmit={handleSubmit(onSubmit)}>
         <div className='container'>
           <div className='grid grid-cols-1 p-10 py-12 lg:grid-cols-6 lg:py-32 lg:pr-[80px]'>

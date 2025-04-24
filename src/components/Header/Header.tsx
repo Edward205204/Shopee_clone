@@ -6,7 +6,7 @@ import PopOver from '../PopOver';
 import emptyPurchaseImage from '../../assets/images/ef577a25315c384ed114.png';
 import { useQueryConfig } from '../../hooks/useQueryConfig';
 import { AppContext } from '../../contexts/app.context';
-import { omit } from 'lodash';
+import omit from 'lodash/omit';
 import { createSearchParams, Link, useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { formatCurrently } from '../../utils/utils';

@@ -10,7 +10,10 @@ import { produce } from 'immer';
 import { toast } from 'react-toastify';
 import { useLocation } from 'react-router';
 import { AppContext } from '../../contexts/app.context';
-import { isEqual, keyBy } from 'lodash';
+import isEqual from 'lodash/isEqual';
+import keyBy from 'lodash/keyBy';
+
+import { Helmet } from 'react-helmet-async';
 // import { useLocation } from 'react-router';
 
 export default function Cart() {
@@ -179,6 +182,10 @@ export default function Cart() {
   }
   return (
     <div className='bg-[#f5f5f5] border-b-2 border-b-[#fb5533] '>
+      <Helmet>
+        <title>Giỏ hàng | Shopee Clone</title>
+        <meta name='description' content='Danh sách hàng trong giỏ.' />
+      </Helmet>
       <div className='container'>
         <div className='py-4'>
           <div className='overflow-x-auto '>

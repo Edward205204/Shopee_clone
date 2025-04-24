@@ -3,7 +3,8 @@ import { order as orderConst, sortBy } from '../../../../constants/product';
 import { ProductConfig } from '../../../../types/products';
 import { QueryConfig } from '../../ProductList';
 import path from '../../../../constants/path';
-import { omit } from 'lodash';
+import omit from 'lodash/omit';
+import { Helmet } from 'react-helmet-async';
 
 interface AsideFilterProps {
   queryConfig: QueryConfig;
@@ -52,6 +53,10 @@ export default function SortProductList({ queryConfig, pageSize }: AsideFilterPr
 
   return (
     <div className='flex items-center justify-between px-4 py-3 my-5 mt-10 bg-gray-200 rounded-sm'>
+      <Helmet>
+        <title>Dự án Shopee Clone</title>
+        <meta name='description' content='Dự án này được ra để phục vụ mục đích học tập' />
+      </Helmet>
       <div className='flex items-center '>
         <div className='mr-4 text-sm'>Sắp xếp theo</div>
         <button

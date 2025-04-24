@@ -1,5 +1,7 @@
 import { QueryConfig } from '../Pages/ProductList/ProductList';
-import { isUndefined, omitBy } from 'lodash';
+import isUndefined from 'lodash/isUndefined';
+import omitBy from 'lodash/omitBy';
+
 import { useSearchParam } from './useQueryParams';
 
 export function useQueryConfig() {

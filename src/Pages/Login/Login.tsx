@@ -11,6 +11,7 @@ import { AppContext } from '../../contexts/app.context';
 import { useContext } from 'react';
 import Button from '../../components/Button';
 import path from '../../constants/path';
+import { Helmet } from 'react-helmet-async';
 
 export type InputForm = typeOfLoginSchema;
 export default function Login() {
@@ -53,6 +54,10 @@ export default function Login() {
 
   return (
     <>
+      <Helmet>
+        <title>Login | Shopee Clone</title>
+        <meta name='description' content='Trang đăng nhập vào Shopee Clone' />
+      </Helmet>
       <div className='bg-[#ee4d2d]' onSubmit={handleSubmit(onSubmit)}>
         <div className='container'>
           <div className='grid grid-cols-1 p-10 py-12 lg:grid-cols-6 lg:py-32 lg:pr-[80px]'>

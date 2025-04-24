@@ -16,7 +16,7 @@ export default function SideNav() {
           <img src={getAvatarUrl(profile?.avatar)} alt='' className='object-cover w-full h-full' />
         </div>
         <div className='ml-4'>
-          <div className='text-base font-semibold text-gray-700 truncate'>
+          <div className='text-base font-semibold text-gray-700 truncate max-w-[100px]'>
             {profile?.name ? profile.name : profile?.email}
           </div>
           <div className='flex items-center gap-2'>

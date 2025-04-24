@@ -9,7 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { inputPriceSchema, typeOfInputPrice } from '../../../../utils/zod';
 import { NoUndefined } from '../../../../types/ultils';
 import RatingFilter from '../RatingFilter';
-import { omit } from 'lodash';
+import omit from 'lodash/omit';
 
 interface AsideFilterProps {
   queryConfig: QueryConfig;

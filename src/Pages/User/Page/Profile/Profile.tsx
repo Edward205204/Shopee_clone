@@ -14,6 +14,7 @@ import { setProfileToLS } from '../../../../utils/auth';
 import { AppContext } from '../../../../contexts/app.context';
 import ResponseAPI from '../../../../types/ultils';
 import InputFile from '../../../../components/InputFile';
+import { Helmet } from 'react-helmet-async';
 
 type FormData = Pick<TypUserProfileSchema, 'name' | 'address' | 'phone' | 'date_of_birth' | 'avatar'>;
 type FormDataUpdate = Pick<TypUserProfileSchema, 'name' | 'address' | 'phone' | 'avatar'> & {
@@ -132,9 +133,12 @@ export default function Profile() {
   };
 
   const avatar = watch('avatar');
-
   return (
     <div className='w-full'>
+      <Helmet>
+        <title>Profile | Shopee Clone</title>
+        <meta name='description' content='Trang thông tin người dùng' />
+      </Helmet>
       <div className='w-full px-10 py-6 bg-white rounded-lg shadow-sm '>
         <div className='px-2 py-4 border-b border-gray-500'>
           <div className='pb-2 text-lg text-gray-900 capitalize'>Hồ sơ của tôi</div>

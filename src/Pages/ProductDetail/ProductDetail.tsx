@@ -12,6 +12,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { purchasesStatus } from '../../constants/purchasesStatus';
 import { toast } from 'react-toastify';
 import path from '../../constants/path';
+import { Helmet } from 'react-helmet-async';
+import { convert } from 'html-to-text';
 
 export default function ProductDetail() {
   const queryClient = useQueryClient();
@@ -125,10 +127,16 @@ export default function ProductDetail() {
   const handleAddToCart = () => {
     useMutationPurchase.mutate({ product_id: product?._id as string, buy_count: Number(quantity) || 1 });
   };
-
   if (!product) return null;
   return (
     <div className='bg-gray-200 border-b-2 border-b-[#ee4d2d] '>
+      <Helmet>
+        <title>{`${product.name}`} | Shopee Clone</title>
+        <meta
+          name='description'
+          content={convert(product.description, { limits: { maxInputLength: 120, ellipsis: '...' } })}
+        />
+      </Helmet>
       <div className='container'>
         <div className='grid grid-cols-12 gap-4 bg-white'>
           <div className='col-span-5 px-10 py-5'>
