@@ -11,10 +11,10 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
 }
 
 const InputNumber = forwardRef<HTMLInputElement, InputProps>(function InputNumberInter(
-  { type, placeholder, className, classNameInput, disableStyle, value = '', onChange, ...rest }: InputProps,
+  { type, placeholder, className, classNameInput, disableStyle, value, onChange, ...rest }: InputProps,
   ref
 ) {
-  const [localValue, setLocalValue] = useState<string>(value);
+  const [localValue, setLocalValue] = useState<string>(value as string);
   const id = useId();
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -33,7 +33,7 @@ const InputNumber = forwardRef<HTMLInputElement, InputProps>(function InputNumbe
         type={type}
         placeholder={placeholder}
         autoComplete='autoComplete'
-        value={value || localValue}
+        value={value === undefined ? localValue : value}
         ref={ref}
         {...rest}
       />

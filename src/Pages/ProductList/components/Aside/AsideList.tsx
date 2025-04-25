@@ -22,6 +22,7 @@ export default function AsideFilter({ dataCategories, queryConfig }: AsideFilter
   const navigate = useNavigate();
   const {
     handleSubmit,
+    reset,
     control,
     formState: error
   } = useForm<InputForm>({
@@ -30,6 +31,7 @@ export default function AsideFilter({ dataCategories, queryConfig }: AsideFilter
   });
 
   const handleReset = () => {
+    reset();
     navigate({
       pathname: path.home,
       search: createSearchParams({
